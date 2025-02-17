@@ -2,6 +2,10 @@ from django.shortcuts import render, HttpResponse,redirect
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate,login,logout
 from django.contrib.auth.decorators import login_required
+from django.shortcuts import render, HttpResponse,redirect
+from django.contrib.auth.models import User
+from django.contrib.auth import authenticate,login,logout
+from django.contrib.auth.decorators import login_required
 
 # Create your views here.
 def dashboard_view(request):
@@ -25,9 +29,6 @@ def SignupPage(request):
             my_user=User.objects.create_user(uname,email,pass1)
             my_user.save()
             return redirect('login')
-        
-
-
 
     return render (request,'signup.html')
 
