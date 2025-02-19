@@ -30,6 +30,7 @@ def SignupPage(request):
 
             my_user=User.objects.create_user(uname,email,pass1)
             my_user.save()
+            logger.info(f"New user {uname} registered with email {email}.")
             return redirect('login')
 
     return render (request,'signup.html')
