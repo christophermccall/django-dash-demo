@@ -6,6 +6,7 @@ from django.shortcuts import render, HttpResponse,redirect
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate,login,logout
 from django.contrib.auth.decorators import login_required
+import logging
 
 # Create your views here.
 @login_required(login_url='login')
@@ -49,3 +50,8 @@ def LoginPage(request):
 def LogoutPage(request):
     logout(request)
     return redirect('login')
+
+logger = logging.getLogger(__name__)
+
+def my_view(request):
+    logger.info(f"User {request.user} accessed the page.")

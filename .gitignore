@@ -7,8 +7,13 @@ db.sqlite3
 *.pyo
 *.pyd
 *.env
-
+*.log
 .vscode/
 .idea/
 .DS_Store
 .venv/
+.venv/
+
+
+logs/*
+!logs/.gitkeep
