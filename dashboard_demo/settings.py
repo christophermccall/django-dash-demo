@@ -139,7 +139,8 @@ LOGGING = {
     'handlers': {
         # to view logs in the terminal during development i've added 'console' to the list of handlers
         'console': {
-            'level': 'DEBUG',  # setting the level to DEBUG ensures that log messages of all levels will be present in the console during development
+            'level': 'INFO',  # setting the level to DEBUG ensures that log messages of all levels will be present in the console during development
+                              # however i've switched the level to INFO for now to keep the console a bit more clear.  
             'class': 'logging.StreamHandler', # this is a built-in handler that streams data to the console
             'formatter': 'simple', # setting this to simple instead of verbose makes log messages easier to read while still conveying helpful info
         },
