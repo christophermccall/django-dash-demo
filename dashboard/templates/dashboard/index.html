@@ -64,9 +64,13 @@
           />
           <button class="btn btn-outline-primary" type="submit">Search</button>
         </form>
+        <div class="text-end">
+          <a href="{% url 'logout' %}" class="btn btn-primary">Logout</a>
+          <!-- <button type="button" class="btn btn-warning">Sign-up</button> -->
+        </div>
         <!-- User info -->
         <div class="d-flex align-items-center">
-          <span class="me-3">Admin</span>
+          <span class="me-3">👤 Admin</span>
           <button class="btn btn-outline-danger">Logout</button>
         </div>
       </div>
