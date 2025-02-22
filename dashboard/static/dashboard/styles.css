@@ -22,6 +22,7 @@ body {
   .sidebar a.active {
     background-color: white;
     color: #3b82f6;
+    font-weight: bold;
   }
   .content {
     margin-left: 260px;

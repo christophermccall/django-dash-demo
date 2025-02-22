@@ -61,37 +61,37 @@
       <h3 class="text-white text-center mb-4">Admin Tools</h3>
       <ul class="nav nav-pills flex-column mb-auto">
         <li class="nav-item">
-          <a href="#" class="nav-link active text-white">
+          <a href="{% url 'overview' %}" class="nav-link {% if '/overview/' in request.path %}active text-white{% else %}text-white{% endif %}">
             <i class="bi bi-speedometer2 me-2"></i> Overview
           </a>
         </li>
         <li>
-          <a href="#" class="nav-link text-white">
+          <a href="{% url 'products' %}" class="nav-link {% if '/products/' in request.path %}active text-white{% else %}text-white{% endif %}">
             <i class="bi bi-box-seam me-2"></i> Products
           </a>
         </li>
         <li>
-          <a href="#" class="nav-link text-white">
-            <i class="bi bi-bar-chart-line me-2"></i> Campaigns
+          <a href="{% url 'activities' %}" class="nav-link {% if '/activities/' in request.path %}active text-white{% else %}text-white{% endif %}">
+            <i class="bi bi-bar-chart-line me-2"></i> activities
           </a>
         </li>
         <li>
-          <a href="#" class="nav-link text-white">
-            <i class="bi bi-calendar-check me-2"></i> Schedules
+          <a href="{% url 'logs' %}" class="nav-link {% if '/logs/' in request.path %}active text-white{% else %}text-white{% endif %}">
+            <i class="bi bi-calendar-check me-2"></i> logs
           </a>
         </li>
         <li>
-          <a href="#" class="nav-link text-white">
-            <i class="bi bi-wallet2 me-2"></i> Payouts
+          <a href="{% url 'payouts' %}" class="nav-link {% if '/payouts/' in request.path %}active text-white{% else %}text-white{% endif %}">
+            <i class="bi bi-wallet2 me-2"></i> payouts
           </a>
         </li>
         <li>
-          <a href="#" class="nav-link text-white">
-            <i class="bi bi-file-earmark-text me-2"></i> Statements
+          <a href="{% url 'profiles' %}" class="nav-link {% if '/profiles/' in request.path %}active text-white{% else %}text-white{% endif %}">
+            <i class="bi bi-file-earmark-text me-2"></i> Profiles
           </a>
         </li>
         <li>
-          <a href="#" class="nav-link text-white">
+          <a href="{% url 'settings' %}" class="nav-link {% if '/settings/' in request.path %}active text-white{% else %}text-white{% endif %}">
             <i class="bi bi-gear me-2"></i> Settings
           </a>
         </li>
