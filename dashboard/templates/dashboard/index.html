@@ -83,11 +83,10 @@
       <div class="row">
         <div class="col-md-4">
           <div class="card shadow p-4">
-            <h4>Title 1</h4>
+            <h4>User Engagement</h4>
             <div>
               <canvas id="myChart"></canvas>
             </div>
-            <p><strong>Content</strong></p>
           </div>
         </div>
         <div class="col-md-4">
@@ -109,31 +108,30 @@
     <script>
       const ctx = document.getElementById('myChart');
     
-      // Fetch login data from the Django API
-      fetch('/dashboard/api/logins-per-day/')  // Assuming your endpoint is at /api/logins-per-day
+      fetch('/dashboard/api/logins-per-day/')  
         .then(response => response.json())
         .then(loginData => {
-          // Extract dates and login counts from the response
+
           const labels = loginData.map(item => item.login_date);
           const data = loginData.map(item => item.login_count);
     
-          // Create the line chart
+          
           new Chart(ctx, {
-            type: 'line',  // Change chart type to 'line'
+            type: 'line',  
             data: {
-              labels: labels,  // Dates from the query
+              labels: labels,  
               datasets: [{
                 label: '# of Logins',
-                data: data,  // Login counts from the query
-                borderColor: 'rgba(75, 192, 192, 1)',  // Line color
-                fill: false,  // Don't fill the area under the line
+                data: data,  
+                borderColor: 'rgba(75, 192, 192, 1)',  
+                fill: false,  
                 borderWidth: 2
               }]
             },
             options: {
               scales: {
                 y: {
-                  beginAtZero: true  // Start the y-axis from 0
+                  beginAtZero: true 
                 }
               }
             }

@@ -105,6 +105,5 @@ def get_logins_per_day(request):
         return JsonResponse(result, safe=False)
 
     except Exception as e:
-        # Log the error and return a more specific message
         logger.error(f"Error in get_logins_per_day view: {str(e)}")
         return JsonResponse({"error": "An error occurred while processing your request. Please try again."}, status=500)
