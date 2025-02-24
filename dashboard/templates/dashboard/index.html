@@ -129,8 +129,10 @@
       <div class="row">
         <div class="col-md-4">
           <div class="card shadow p-4">
-            <h4>Title 1</h4>
-            <p><strong>Content</strong></p>
+            <h4>User Engagement</h4>
+            <div>
+              <canvas id="myChart"></canvas>
+            </div>
           </div>
         </div>
         <div class="col-md-4">
@@ -148,5 +150,42 @@
       </div>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+      const ctx = document.getElementById('myChart');
+    
+      fetch('/dashboard/api/logins-per-day/')  
+        .then(response => response.json())
+        .then(loginData => {
+
+          const labels = loginData.map(item => item.login_date);
+          const data = loginData.map(item => item.login_count);
+    
+          
+          new Chart(ctx, {
+            type: 'line',  
+            data: {
+              labels: labels,  
+              datasets: [{
+                label: '# of Logins',
+                data: data,  
+                borderColor: 'rgba(75, 192, 192, 1)',  
+                fill: false,  
+                borderWidth: 2
+              }]
+            },
+            options: {
+              scales: {
+                y: {
+                  beginAtZero: true 
+                }
+              }
+            }
+          });
+        })
+        .catch(error => {
+          console.error('Error fetching login data:', error);
+        });
+    </script>
   </body>
 </html>
