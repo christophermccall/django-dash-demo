@@ -17,6 +17,7 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from dashboard import views
+from dashboard.views import index
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -25,5 +26,5 @@ urlpatterns = [
     # path('home/',views.HomePage,name='home'),
     path('logout/',views.LogoutPage,name='logout'),
     path('dashboard/', include('dashboard.urls')),
-    path('', views.index, name='index'),
+    path('', index, name='index'),
 ]

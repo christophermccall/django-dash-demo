@@ -15,11 +15,9 @@ logger = logging.getLogger(__name__)
 
 # Create your views here.
 @login_required(login_url='login')
-def dashboard_view(request):
+def index(request):
     return render(request, 'dashboard/index.html')
 
-def index(request):
-    return render(request, 'index.html')
 # def HomePage(request):
 #     return render (request,'home.html')
 
