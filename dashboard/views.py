@@ -6,6 +6,9 @@ from django.shortcuts import render, HttpResponse,redirect
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate,login,logout
 from django.contrib.auth.decorators import login_required
+from django.db.models import Count
+from django.db.models.functions import TruncDate
+from django.http import JsonResponse
 from .models import UserActivity
 import logging
 logger = logging.getLogger(__name__)
@@ -84,3 +87,24 @@ def LogoutPage(request):
     )
 
     return redirect('login')
+
+
+def get_logins_per_day(request):
+    try:
+        login_data = (UserActivity.objects
+                      .filter(action='logged in')
+                      .annotate(login_date=TruncDate('timestamp'))
+                      .values('login_date')
+                      .annotate(login_count=Count('id'))
+                      .order_by('login_date'))
+
+        logger.info(f"Login data: {login_data}")
+
+        result = [{"login_date": entry['login_date'].strftime('%Y-%m-%d'), "login_count": entry['login_count']} for entry in login_data]
+
+        return JsonResponse(result, safe=False)
+
+    except Exception as e:
+        # Log the error and return a more specific message
+        logger.error(f"Error in get_logins_per_day view: {str(e)}")
+        return JsonResponse({"error": "An error occurred while processing your request. Please try again."}, status=500)
