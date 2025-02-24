@@ -12,7 +12,8 @@ from django.contrib.auth.decorators import login_required
 def dashboard_view(request):
     return render(request, 'dashboard/index.html')
 
-
+def index(request):
+    return render(request, 'index.html')
 # def HomePage(request):
 #     return render (request,'home.html')
 

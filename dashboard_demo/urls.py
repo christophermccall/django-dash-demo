@@ -25,4 +25,5 @@ urlpatterns = [
     # path('home/',views.HomePage,name='home'),
     path('logout/',views.LogoutPage,name='logout'),
     path('dashboard/', include('dashboard.urls')),
+    path('', views.index, name='index'),
 ]
