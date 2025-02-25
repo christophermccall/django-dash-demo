@@ -38,21 +38,31 @@
     </form>
 
     <!-- Bootstrap Toast Notification Container -->
-    <div class="toast-container">
+    {% if messages %}
+    <div class="toast-container" id="toastContainer">
         {% for message in messages %}
-        <div class="toast align-items-center text-white bg-{% if message.tags == 'error' %}danger{% elif message.tags == 'success' %}success{% elif message.tags == 'warning' %}warning{% else %}info{% endif %} border-0" role="alert" aria-live="assertive" aria-atomic="true">
-            <div class="d-flex">
-                <div class="toast-body">
-                    {{ message }}
-                </div>
-                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+        <div class="toast show bg-{{ message.tags }}" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="toast-body">
+                {{ message }}
+                <button type="button" class="close-btn" onclick="closeToast(this)">
+                    &times;
+                </button>
             </div>
         </div>
         {% endfor %}
     </div>
+    {% endif %}
 
-    <!-- JavaScript to Show Toasts Automatically -->
     <script>
+        function closeToast(button) {
+            button.parentElement.parentElement.style.display = "none";
+        }
+    </script>
+    
+
+    
+    <!-- JavaScript to Show Toasts Automatically -->
+    <!-- <script>
         document.addEventListener("DOMContentLoaded", function () {
             let toastElList = document.querySelectorAll('.toast');
             toastElList.forEach(toastEl => {
@@ -60,7 +70,7 @@
                 toast.show();
             });
         });
-    </script>
+    </script> -->
 
 </body>
 </html>

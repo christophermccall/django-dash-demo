@@ -148,9 +148,15 @@ button {
     border-radius: 8px;
     padding: 10px;
     font-size: 16px;
+    background-color: #ffffff;
+    color: #4a5af1;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }
 
 .toast-body {
     font-size: 14px;
     font-weight: 500;
 }
+
