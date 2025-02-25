@@ -1,20 +1,19 @@
-from django.shortcuts import render, HttpResponse,redirect
+from django.shortcuts import render, redirect
 from django.contrib.auth.models import User
-from django.contrib.auth import authenticate,login,logout
+from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import render, HttpResponse,redirect
-from django.contrib.auth.models import User
-from django.contrib.auth import authenticate,login,logout
-from django.contrib.auth.decorators import login_required
+from django.urls import reverse
+from django.contrib import messages
 from django.db.models import Count
 from django.db.models.functions import TruncDate
 from django.http import JsonResponse
 from .models import UserActivity
 import logging
+
 logger = logging.getLogger(__name__)
 
-# Create your views here.
-# @login_required(login_url='login')
+# Dashboard - Requires Login
+@login_required(login_url='login')
 def dashboard_view(request):
     return render(request, 'dashboard/index.html')
 
@@ -41,76 +40,93 @@ def settings(request):
 
 def index(request):
     return render(request, 'index.html')
-# def HomePage(request):
-#     return render (request,'home.html')
 
+
+# Signup Page
 def SignupPage(request):
-    if request.method=='POST':
-        uname=request.POST.get('username')
-        email=request.POST.get('email')
-        pass1=request.POST.get('password1')
-        pass2=request.POST.get('password2')
+    if request.method == 'POST':
+        uname = request.POST.get('username')
+        email = request.POST.get('email')
+        pass1 = request.POST.get('password1')
+        pass2 = request.POST.get('password2')
 
-        if pass1!=pass2:
-            return HttpResponse("Your password and confirm password are not Same!!")
-        else:
+        if pass1 != pass2:
+            messages.error(request, "Your password and confirm password do not match!")
+            return redirect('signup')
+        
+        if User.objects.filter(username=uname).exists():
+            messages.warning(request, "Username already taken. Try another one.")
+            return redirect('signup')
 
-            my_user=User.objects.create_user(uname,email,pass1)
-            my_user.save()
-            # logger for the console
-            logger.info(f"New user {uname} registered with email {email}.")
-            #logging for the database
-            UserActivity.objects.create(
-                user=request.user,
-                action="account creation",
-                ip_address=request.META.get('REMOTE_ADDR'),
-                page=request.path
-            )
+        # User creation (Corrected indentation)
+        my_user = User.objects.create_user(username=uname, email=email, password=pass1)
+        my_user.save()
 
-            return redirect('login')
+        # Logging for console
+        logger.info(f"New user {uname} registered with email {email}.")
 
-    return render (request,'signup.html')
+        # Logging for database (Use `my_user`, not `request.user`)
+        UserActivity.objects.create(
+            user=my_user,
+            action="account creation",
+            ip_address=request.META.get('REMOTE_ADDR'),
+            page=request.path
+        )
 
+        messages.success(request, "Account created successfully! Please log in.")
+        return redirect('login')
+
+    return render(request, 'signup.html')
+
+# Login Page
 def LoginPage(request):
-    if request.method=='POST':
-        username=request.POST.get('username')
-        pass1=request.POST.get('pass')
-        user=authenticate(request,username=username,password=pass1)
+    if request.method == 'POST':
+        username = request.POST.get('username')
+        pass1 = request.POST.get('pass')
+        user = authenticate(request, username=username, password=pass1)
+
         if user is not None:
-            login(request,user)
-            # logger for the console
-            logger.info(f"user {username} logged in")
-            #logging for the database
+            login(request, user)
+            logger.info(f"User {username} logged in")
+
+            # Logging user activity
             UserActivity.objects.create(
-                user=request.user,
+                user=user,  # Use authenticated `user`, not `request.user`
                 action="logged in",
                 ip_address=request.META.get('REMOTE_ADDR'),
                 page=request.path
             )
 
-            return redirect('dashboard')
+            messages.success(request, "Login successful!")
+            return redirect(reverse('dashboard'))
+
         else:
             logger.warning(f"Failed login attempt for username {username}")
-            return HttpResponse ("Username or Password is incorrect!!!")
+            messages.error(request, "Username or Password is incorrect!")
+            return redirect('login')  
 
-    return render (request,'login.html')
+    return render(request, 'login.html')
 
+# Logout Page
 def LogoutPage(request):
-    username = request.user.username
-    logout(request)
-    # logger for the console
-    logger.info(f"user {username} logged out")
-    #logging for the database
-    UserActivity.objects.create(
-        user=request.user,
-        action="logged out",
-        ip_address=request.META.get('REMOTE_ADDR'),
-        page=request.path
-    )
+    if request.user.is_authenticated:  # Check if user is logged in
+        username = request.user.username
+
+        # Logging user activity before logout
+        UserActivity.objects.create(
+            user=request.user,
+            action="logged out",
+            ip_address=request.META.get('REMOTE_ADDR'),
+            page=request.path
+        )
+
+        logout(request)  
+        logger.info(f"User {username} logged out.")
+        messages.info(request, "You have been logged out successfully.")
 
     return redirect('login')
 
-
+# Get login counts per day
 def get_logins_per_day(request):
     try:
         login_data = (UserActivity.objects
