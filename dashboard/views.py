@@ -6,6 +6,7 @@ from django.urls import reverse
 from django.contrib import messages
 from django.db.models import Count
 from django.db.models.functions import TruncDate
+from django_ratelimit.decorators import ratelimit
 from django.http import JsonResponse
 from .models import UserActivity
 import logging
@@ -127,6 +128,8 @@ def LogoutPage(request):
     return redirect('login')
 
 # Get login counts per day
+# this decorator is used to limit the amount of requets per user based on their ip
+@ratelimit(key='user_or_ip', rate='10/m')
 def get_logins_per_day(request):
     try:
         login_data = (UserActivity.objects
