@@ -12,10 +12,32 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+
 # Dashboard - Requires Login
 @login_required(login_url='login')
 def dashboard_view(request):
     return render(request, 'dashboard/index.html')
+
+def overview(request):
+    return render(request, 'dashboard/overview.html')
+
+def products(request):
+    return render(request, 'dashboard/products.html')
+
+def activities(request):
+    return render(request, 'dashboard/activities.html')
+
+def logs(request):
+    return render(request, 'dashboard/logs.html')
+
+def payouts(request):
+    return render(request, 'dashboard/payouts.html')
+
+def profiles(request):
+    return render(request, 'dashboard/profiles.html')
+
+def settings(request):
+    return render(request, 'dashboard/settings.html')
 
 def index(request):
     return render(request, 'index.html')
