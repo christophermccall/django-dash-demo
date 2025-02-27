@@ -6,16 +6,39 @@ from django.contrib import messages
 # from django.contrib.messages import get_messages
 from django.db.models import Count
 from django.db.models.functions import TruncDate
+from django_ratelimit.decorators import ratelimit
 from django.http import JsonResponse
 from .models import UserActivity
 import logging
 
 logger = logging.getLogger(__name__)
 
+
 # Dashboard - Requires Login
 @login_required(login_url='login')
 def dashboard_view(request):
     return render(request, 'dashboard/index.html')
+
+def overview(request):
+    return render(request, 'dashboard/overview.html')
+
+def products(request):
+    return render(request, 'dashboard/products.html')
+
+def activities(request):
+    return render(request, 'dashboard/activities.html')
+
+def logs(request):
+    return render(request, 'dashboard/logs.html')
+
+def payouts(request):
+    return render(request, 'dashboard/payouts.html')
+
+def profiles(request):
+    return render(request, 'dashboard/profiles.html')
+
+def settings(request):
+    return render(request, 'dashboard/settings.html')
 
 def index(request):
     return render(request, 'index.html')
@@ -111,6 +134,8 @@ def LogoutPage(request):
     return redirect('login')
 
 # Get login counts per day
+# this decorator is used to limit the amount of requets per user based on their ip
+@ratelimit(key='user_or_ip', rate='10/m')
 def get_logins_per_day(request):
     try:
         login_data = (UserActivity.objects
