@@ -1,10 +1,16 @@
 from django.urls import path
-# from .views import dashboard_view
+
+from .views import dashboard_view
+from .views import LogoutPage
 from . import views
 from .views import get_logins_per_day
 
 
 urlpatterns = [
+
+    path('', dashboard_view, name='dashboard'),
+    path('logout/', LogoutPage, name='logout'),
+    path('api/logins-per-day/', get_logins_per_day, name='logins_per_day')
     path('', views.dashboard_view, name='dashboard'),
     path('overview/', views.overview, name='overview'),
     path('products/', views.products, name='products'),
@@ -14,4 +20,5 @@ urlpatterns = [
     path('profiles/', views.profiles, name='profiles'),
     path('settings/', views.settings, name='settings'),
     path('api/logins-per-day/', get_logins_per_day, name='logins_per_day'),
+
 ]

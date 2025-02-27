@@ -59,7 +59,29 @@
         }
     </script>
     
-
+    <!-- <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            let messages = JSON.parse('{{ messages|safe }}');  // Ensure messages are passed correctly
+            let toastContainer = document.getElementById("toastContainer");
+        
+            if (messages.length > 0) {
+                messages.forEach((msg) => {
+                    let toastDiv = document.createElement("div");
+                    toastDiv.className = `toast show bg-${msg.tags}`;
+                    toastDiv.role = "alert";
+                    toastDiv.innerHTML = `
+                        <div class="toast-body">
+                            ${msg.message}
+                            <button type="button" class="close-btn" onclick="closeToast(this)">
+                                &times;
+                            </button>
+                        </div>`;
+                    toastContainer.appendChild(toastDiv);
+                });
+            }
+        });
+        </script> -->
+        
     
     <!-- JavaScript to Show Toasts Automatically -->
     <!-- <script>
