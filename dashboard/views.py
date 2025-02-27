@@ -2,8 +2,8 @@ from django.shortcuts import render, redirect
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
-from django.urls import reverse
 from django.contrib import messages
+# from django.contrib.messages import get_messages
 from django.db.models import Count
 from django.db.models.functions import TruncDate
 from django.http import JsonResponse
@@ -77,7 +77,7 @@ def LoginPage(request):
             )
 
             messages.success(request, "Login successful!")
-            return redirect(reverse('dashboard'))
+            return redirect('dashboard')
 
         else:
             logger.warning(f"Failed login attempt for username {username}")
@@ -102,6 +102,11 @@ def LogoutPage(request):
         logout(request)  
         logger.info(f"User {username} logged out.")
         messages.info(request, "You have been logged out successfully.")
+
+     # Consume messages before redirecting
+    # storage = get_messages(request)
+    # for _ in storage:
+    #     pass  # Access messages to clear them
 
     return redirect('login')
 
