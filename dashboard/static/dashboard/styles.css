@@ -15,15 +15,16 @@ body {
     font-size: 18px;
     border-radius: 8px;
     transition: background 0.3s;
+    color: white;
   }
   .sidebar a:hover {
     background-color: rgba(255, 255, 255, 0.2);
   }
-  .sidebar a.active {
-    background-color: white;
-    color: #3b82f6;
-    font-weight: bold;
-  }
+.sidebar a.active {
+  background-color: white;
+  color: white;
+  font-weight: bold;
+}
   .content {
     margin-left: 260px;
     padding: 20px;
