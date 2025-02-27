@@ -3,7 +3,7 @@ from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-# from django.contrib.messages import get_messages
+from django.contrib.messages import get_messages
 from django.db.models import Count
 from django.db.models.functions import TruncDate
 from django_ratelimit.decorators import ratelimit
@@ -82,6 +82,11 @@ def SignupPage(request):
 
 # Login Page
 def LoginPage(request):
+
+    storage = get_messages(request)  # Consume messages so they don't persist
+    for _ in storage:
+        pass  # This will clear any existing messages
+
     if request.method == 'POST':
         username = request.POST.get('username')
         pass1 = request.POST.get('pass')
@@ -124,12 +129,13 @@ def LogoutPage(request):
 
         logout(request)  
         logger.info(f"User {username} logged out.")
-        messages.info(request, "You have been logged out successfully.")
 
-     # Consume messages before redirecting
-    # storage = get_messages(request)
-    # for _ in storage:
-    #     pass  # Access messages to clear them
+        # Consume messages to prevent them from persisting
+        storage = get_messages(request)
+        for _ in storage:
+            pass  # Access messages to clear them
+
+        messages.info(request, "You have been logged out successfully.")
 
     return redirect('login')
 
