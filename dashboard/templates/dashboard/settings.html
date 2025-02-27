@@ -1,6 +1,16 @@
-{% extends 'dashboard/index.html' %}
+{% extends 'dashboard/base.html' %}
 
 {% block content %}
-<h2>Profiles Page</h2>
-<p>This is the profiles page.</p>
+    <h2>Settings</h2>
+    <p>Configure your application settings here.</p>
+    <div class="card p-4 shadow">
+        <h5>Notification Settings</h5>
+        <label>
+            <input type="checkbox"> Enable Email Notifications
+        </label>
+        <br>
+        <label>
+            <input type="checkbox"> Enable SMS Notifications
+        </label>
+    </div>
 {% endblock %}

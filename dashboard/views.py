@@ -13,7 +13,6 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-
 # Dashboard - Requires Login
 @login_required(login_url='login')
 def dashboard_view(request):
