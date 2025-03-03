@@ -14,6 +14,7 @@ db.sqlite3
 .venv/
 .venv/
 
+.env
 
 logs/*
 !logs/.gitkeep

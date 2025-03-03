@@ -9,7 +9,11 @@ from django.db.models.functions import TruncDate
 from django_ratelimit.decorators import ratelimit
 from django.http import JsonResponse
 from .models import UserActivity
+from django.views.decorators.csrf import csrf_exempt
+import stripe
 import logging
+from .models import Subscription
+from django.conf import settings
 
 logger = logging.getLogger(__name__)
 
@@ -36,12 +40,17 @@ def payouts(request):
 def profiles(request):
     return render(request, 'dashboard/profiles.html')
 
-def settings(request):
-    return render(request, 'dashboard/settings.html')
+def user_settings(request):
+    return render(request, 'dashboard/user_settings.html')
 
 def index(request):
     return render(request, 'index.html')
 
+def success_view(request):
+    return render(request, 'success.html')
+
+def cancel_view(request):
+    return render(request, 'cancel.html')
 
 # Signup Page
 def SignupPage(request):
@@ -142,20 +151,94 @@ def LogoutPage(request):
 # this decorator is used to limit the amount of requets per user based on their ip
 @ratelimit(key='user_or_ip', rate='10/m')
 def get_logins_per_day(request):
+    ###subscription blocker
     try:
-        login_data = (UserActivity.objects
-                      .filter(action='logged in')
-                      .annotate(login_date=TruncDate('timestamp'))
-                      .values('login_date')
-                      .annotate(login_count=Count('id'))
-                      .order_by('login_date'))
+        sub = Subscription.objects.get(user=request.user)
+        if sub.status != "active":
+            return JsonResponse({"error": "Subscription required"}, status=403)
 
-        logger.info(f"Login data: {login_data}")
+        try:
+            login_data = (UserActivity.objects
+                        .filter(action='logged in')
+                        .annotate(login_date=TruncDate('timestamp'))
+                        .values('login_date')
+                        .annotate(login_count=Count('id'))
+                        .order_by('login_date'))
 
-        result = [{"login_date": entry['login_date'].strftime('%Y-%m-%d'), "login_count": entry['login_count']} for entry in login_data]
+            logger.info(f"Login data: {login_data}")
 
-        return JsonResponse(result, safe=False)
+            result = [{"login_date": entry['login_date'].strftime('%Y-%m-%d'), "login_count": entry['login_count']} for entry in login_data]
 
-    except Exception as e:
-        logger.error(f"Error in get_logins_per_day view: {str(e)}")
-        return JsonResponse({"error": "An error occurred while processing your request. Please try again."}, status=500)
+            return JsonResponse(result, safe=False)
+
+        except Exception as e:
+            logger.error(f"Error in get_logins_per_day view: {str(e)}")
+            return JsonResponse({"error": "An error occurred while processing your request. Please try again."}, status=500)
+
+    ## exception for the subscription try
+    except Subscription.DoesNotExist:
+        return JsonResponse({"error": "No subscription found"}, status=403)
+
+
+
+#checkout session
+
+@login_required(login_url='login')
+def create_checkout_session(request):
+    user = request.user
+    customer = stripe.Customer.create(email=user.email)
+
+    checkout_session = stripe.checkout.Session.create(
+        customer=customer.id,
+        payment_method_types=["card"],
+        line_items=[
+            {
+                "price": "price_1Qxtc6JNY05FwokpJCjk5rXe",  # Price ID from Stripe
+                "quantity": 1,
+            }
+        ],
+        mode="subscription",
+        success_url="http://127.0.0.1:8000/success/",
+        cancel_url="http://127.0.0.1:8000/cancel/",
+    )
+
+    return redirect(checkout_session.url)
+
+
+
+
+
+
+#webhook
+
+@csrf_exempt
+def stripe_webhook(request):
+
+    stripe.api_key = settings.STRIPE_SECRET_KEY
+    payload = request.body
+    sig_header = request.headers.get("Stripe-Signature")
+    endpoint_secret = settings.STRIPE_WEBHOOK_SECRET
+
+    try:
+        event = stripe.Webhook.construct_event(payload, sig_header, endpoint_secret)
+        
+    except ValueError:
+        return JsonResponse({"error": "Invalid payload"}, status=400)
+    except stripe.error.SignatureVerificationError:
+        return JsonResponse({"error": "Invalid signature"}, status=400)
+
+
+    if event["type"] == "customer.subscription.updated":
+        subscription_data = event["data"]["object"]
+        stripe_subscription_id = subscription_data["id"]
+        status = subscription_data["status"]
+
+       
+        try:
+            sub = Subscription.objects.get(stripe_subscription_id=stripe_subscription_id)
+            sub.status = status
+            sub.save()
+        except Subscription.DoesNotExist:
+            pass
+        
+    return JsonResponse({"status": "success"}, status=200)

@@ -17,7 +17,9 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from dashboard import views
-from dashboard.views import index
+from dashboard.views import index, stripe_webhook
+
+
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -27,4 +29,7 @@ urlpatterns = [
     path('logout/',views.LogoutPage,name='logout'),
     path('dashboard/', include('dashboard.urls')),
     path('', index, name='index'),
+    path('success/', views.success_view, name='success_view'),
+    path('cancel/', views.cancel_view, name='cancel_view'),
+    path('stripe/webhook/', stripe_webhook, name='stripe_webhook'),
 ]
