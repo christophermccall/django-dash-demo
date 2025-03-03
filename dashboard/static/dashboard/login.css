@@ -135,6 +135,29 @@ button {
     margin-right: 4px;
 }
 
+.password-container {
+    position: relative;
+    width: 100%;
+    display: flex;
+    align-items: center;
+}
+.password-container input {
+    width: 100%;
+    padding-right: 40px;
+    height: 50px;
+    border-radius: 3px;
+    padding-left: 10px;
+}
+.password-container .toggle-password {
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    color: #ccc;
+    font-size: 18px;
+}
+
 /* Toast Notifications */
 .toast-container {
     position: fixed;
@@ -150,6 +173,7 @@ button {
     font-size: 16px;
     background-color: #ffffff;
     color: #4a5af1;
+    margin-bottom: 10px;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -160,3 +184,13 @@ button {
     font-weight: 500;
 }
 
+/* Close button */
+.close-btn {
+    background: none;
+    border: none;
+    color: #333; /* Dark color for contrast */
+    font-size: 20px;
+    font-weight: bold;
+    cursor: pointer;
+    padding: 5px;
+}
