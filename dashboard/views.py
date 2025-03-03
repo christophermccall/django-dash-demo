@@ -8,7 +8,7 @@ from django.db.models import Count
 from django.db.models.functions import TruncDate
 from django_ratelimit.decorators import ratelimit
 from django.http import JsonResponse
-from .models import UserActivity
+from .models import UserActivity, Profile
 import logging
 
 logger = logging.getLogger(__name__)
@@ -148,3 +148,38 @@ def get_logins_per_day(request):
     except Exception as e:
         logger.error(f"Error in get_logins_per_day view: {str(e)}")
         return JsonResponse({"error": "An error occurred while processing your request. Please try again."}, status=500)
+
+
+
+# User Profile
+@login_required
+def profiles(request):
+    user = request.user
+    profile, created = Profile.objects.get_or_create(user=user)
+
+    if request.method == 'POST':
+        full_name = request.POST.get('full_name')
+        company_name = request.POST.get('company_name')
+        organization_type = request.POST.get('organization_type')
+        email = request.POST.get('email')
+        phone_number = request.POST.get('phone_number')
+        address = request.POST.get('address')
+
+        if full_name and email:
+            user.email = email
+            profile.full_name = full_name
+            profile.company_name = company_name
+            profile.organization_type = organization_type
+            profile.phone_number = phone_number
+            profile.address = address
+
+            user.save()
+            profile.save()
+            
+            messages.success(request, "Profile updated successfully!")
+
+            return redirect('profiles')
+        else:
+            messages.error(request, "Full Name and Email are required fields.")
+
+    return render(request, 'dashboard/profiles.html', {'profile': profile})
