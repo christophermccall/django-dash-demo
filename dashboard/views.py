@@ -18,15 +18,19 @@ logger = logging.getLogger(__name__)
 def dashboard_view(request):
     return render(request, 'dashboard/index.html')
 
+@login_required(login_url='login')
 def overview(request):
     return render(request, 'dashboard/overview.html')
 
+@login_required(login_url='login')
 def products(request):
     return render(request, 'dashboard/products.html')
 
+@login_required(login_url='login')
 def activities(request):
     return render(request, 'dashboard/activities.html')
 
+@login_required(login_url='login')
 def logs(request):
     return render(request, 'dashboard/logs.html')
 
@@ -34,9 +38,11 @@ def logs(request):
 def payouts(request):
     return render(request, 'dashboard/payouts.html')
 
+@login_required(login_url='login')
 def profiles(request):
     return render(request, 'dashboard/profiles.html')
 
+@login_required(login_url='login')
 def settings(request):
     return render(request, 'dashboard/settings.html')
 
