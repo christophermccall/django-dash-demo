@@ -58,9 +58,28 @@
     </div>
     {% endif %}
 
-    <script>
+    <!-- <script>
         function closeToast(button) {
             button.parentElement.parentElement.style.display = "none";
+        }
+    </script> -->
+
+    <script>
+        // Automatically close toast notifications after 3 seconds
+        document.addEventListener("DOMContentLoaded", function () {
+            setTimeout(function () {
+                let toasts = document.querySelectorAll(".toast");
+                toasts.forEach(toast => {
+                    toast.style.opacity = "0";
+                    setTimeout(() => toast.remove(), 500); // Remove after fade-out
+                });
+            }, 3000); // 3 seconds
+        });
+    
+        function closeToast(button) {
+            let toast = button.closest(".toast");
+            toast.style.opacity = "0";
+            setTimeout(() => toast.remove(), 500);
         }
     </script>
 
