@@ -30,6 +30,7 @@ def activities(request):
 def logs(request):
     return render(request, 'dashboard/logs.html')
 
+@login_required(login_url='login')
 def payouts(request):
     return render(request, 'dashboard/payouts.html')
 
