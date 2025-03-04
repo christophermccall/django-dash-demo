@@ -12,7 +12,7 @@ db.sqlite3
 .idea/
 .DS_Store
 .venv/
-.venv/
+
 
 .env
 
