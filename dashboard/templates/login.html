@@ -31,7 +31,12 @@
         <input type="text" placeholder="Enter Username" id="username" name="username">
 
         <label for="password">Password</label>
-        <input type="password" placeholder="Password" id="password" name="pass">
+        <div class="password-container">
+            <input type="password" placeholder="Password" id="password" name="pass">
+            <span class="toggle-password" onclick="togglePassword('password', this)">
+                <i class="fas fa-eye"></i>
+            </span>
+        </div>
 
         <button type="submit">Log In</button>
         <a href="{% url 'signup' %}">Create an account</a>
@@ -53,13 +58,69 @@
     </div>
     {% endif %}
 
-    <script>
+    <!-- <script>
         function closeToast(button) {
             button.parentElement.parentElement.style.display = "none";
         }
-    </script>
-    
+    </script> -->
 
+    <script>
+        // Automatically close toast notifications after 3 seconds
+        document.addEventListener("DOMContentLoaded", function () {
+            setTimeout(function () {
+                let toasts = document.querySelectorAll(".toast");
+                toasts.forEach(toast => {
+                    toast.style.opacity = "0";
+                    setTimeout(() => toast.remove(), 500); // Remove after fade-out
+                });
+            }, 3000); // 3 seconds
+        });
+    
+        function closeToast(button) {
+            let toast = button.closest(".toast");
+            toast.style.opacity = "0";
+            setTimeout(() => toast.remove(), 500);
+        }
+    </script>
+
+    <script>
+        function togglePassword(fieldId, iconSpan) {
+            let passwordField = document.getElementById(fieldId);
+            let icon = iconSpan.querySelector("i");
+            if (passwordField.type === "password") {
+                passwordField.type = "text";
+                icon.classList.remove("fa-eye");
+                icon.classList.add("fa-eye-slash");
+            } else {
+                passwordField.type = "password";
+                icon.classList.remove("fa-eye-slash");
+                icon.classList.add("fa-eye");
+            }
+        }
+    </script>
+    <!-- <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            let messages = JSON.parse('{{ messages|safe }}');  // Ensure messages are passed correctly
+            let toastContainer = document.getElementById("toastContainer");
+        
+            if (messages.length > 0) {
+                messages.forEach((msg) => {
+                    let toastDiv = document.createElement("div");
+                    toastDiv.className = `toast show bg-${msg.tags}`;
+                    toastDiv.role = "alert";
+                    toastDiv.innerHTML = `
+                        <div class="toast-body">
+                            ${msg.message}
+                            <button type="button" class="close-btn" onclick="closeToast(this)">
+                                &times;
+                            </button>
+                        </div>`;
+                    toastContainer.appendChild(toastDiv);
+                });
+            }
+        });
+        </script> -->
+        
     
     <!-- JavaScript to Show Toasts Automatically -->
     <!-- <script>

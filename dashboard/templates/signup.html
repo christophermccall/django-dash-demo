@@ -41,10 +41,20 @@
         <input type="email" placeholder="Email or Phone" name="email" id="email">
 
         <label for="password1">Password</label>
-        <input type="password" placeholder="Password" id="password1" name="password1">
+        <div class="password-container">
+            <input type="password" placeholder="Password" id="password1" name="password1">
+            <span class="toggle-password" onclick="togglePassword('password1', this)">
+                <i class="fas fa-eye"></i>
+            </span>
+        </div>
 
         <label for="password2">Confirm Password</label>
-        <input type="password" placeholder="Confirm Password" id="password2" name="password2">
+        <div class="password-container">
+            <input type="password" placeholder="Confirm Password" id="password2" name="password2">
+            <span class="toggle-password" onclick="togglePassword('password2', this)">
+                <i class="fas fa-eye"></i>
+            </span>
+        </div>
 
         <button type="submit">Signup</button>
         
@@ -54,6 +64,22 @@
     <script>
         function closeToast(button) {
             button.parentElement.parentElement.style.display = "none";
+        }
+    </script>
+
+    <script>
+        function togglePassword(fieldId, iconSpan) {
+            let passwordField = document.getElementById(fieldId);
+            let icon = iconSpan.querySelector("i");
+            if (passwordField.type === "password") {
+                passwordField.type = "text";
+                icon.classList.remove("fa-eye");
+                icon.classList.add("fa-eye-slash");
+            } else {
+                passwordField.type = "password";
+                icon.classList.remove("fa-eye-slash");
+                icon.classList.add("fa-eye");
+            }
         }
     </script>
     
