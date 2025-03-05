@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <title>Signup Page</title>
     <link rel="preconnect" href="https://fonts.gstatic.com">
@@ -8,8 +9,9 @@
     <!-- <link rel="stylesheet" href="signup.css"> -->
     {% load static %}
     <link rel="stylesheet" href="{% static 'dashboard/signup.css' %}">
-    
+
 </head>
+
 <body>
     <div class="background">
         <div class="shape"></div>
@@ -21,11 +23,9 @@
         <div class="toast show {{ message.tags }}" role="alert">
             <div class="toast-body">
                 {{ message }}
-                <button type="button" class="close-btn" onclick="closeToast(this)">
-                    &times;
-                </button>
             </div>
-        </div>
+            <button type="button" class="close-btn" onclick="closeToast(this)">&times;</button>
+        </div>        
         {% endfor %}
     </div>
     {% endif %}
@@ -57,13 +57,31 @@
         </div>
 
         <button type="submit">Signup</button>
-        
+
         <a href="{% url 'login' %}">I already have an account</a>
     </form>
 
-    <script>
+    <!-- <script>
         function closeToast(button) {
             button.parentElement.parentElement.style.display = "none";
+        }
+    </script> -->
+
+    <script>
+        // Automatically close toast notifications after 3 seconds
+        document.addEventListener("DOMContentLoaded", function () {
+            setTimeout(function () {
+                document.querySelectorAll(".toast").forEach(toast => {
+                    toast.style.opacity = "0";
+                    setTimeout(() => toast.remove(), 300); // Remove after fade-out
+                });
+            }, 3000); // 3 seconds
+        });
+
+        function closeToast(button) {
+            let toast = button.closest(".toast");
+            toast.style.opacity = "0";
+            setTimeout(() => toast.remove(), 300);
         }
     </script>
 
@@ -82,6 +100,7 @@
             }
         }
     </script>
-    
+
 </body>
+
 </html>
