@@ -9,7 +9,7 @@
     <!-- <link rel="stylesheet" href="signup.css"> -->
     {% load static %}
     <link rel="stylesheet" href="{% static 'dashboard/signup.css' %}">
-
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </head>
 
 <body>
@@ -17,15 +17,17 @@
         <div class="shape"></div>
         <div class="shape"></div>
     </div>
+
     {% if messages %}
-    <div class="toast-container">
+    <div class="toast-container" id="toastContainer">
         {% for message in messages %}
-        <div class="toast show {{ message.tags }}" role="alert">
-            <div class="toast-body">
-                {{ message }}
+        <div class="toast show bg-{{ message.tags }}" role="alert">
+            <div class="toast-body d-flex justify-content-between align-items-center">
+                <span class="toast-message">{{ message }}</span>
+    
             </div>
             <button type="button" class="close-btn" onclick="closeToast(this)">&times;</button>
-        </div>        
+        </div>
         {% endfor %}
     </div>
     {% endif %}
@@ -67,7 +69,7 @@
         }
     </script> -->
 
-    <script>
+    <!-- <script>
         // Automatically close toast notifications after 3 seconds
         document.addEventListener("DOMContentLoaded", function () {
             setTimeout(function () {
@@ -83,7 +85,7 @@
             toast.style.opacity = "0";
             setTimeout(() => toast.remove(), 300);
         }
-    </script>
+    </script> -->
 
     <script>
         function togglePassword(fieldId, iconSpan) {
