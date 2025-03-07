@@ -1,6 +1,27 @@
-{% extends 'dashboard/index.html' %}
+{% extends 'dashboard/base.html' %}
 
 {% block content %}
-<h2>Profiles Page</h2>
-<p>This is the profiles page.</p>
+    <h2>Products</h2>
+    <p>Manage your products here.</p>
+    <table class="table table-striped shadow">
+        <thead>
+            <tr>
+                <th>Product Name</th>
+                <th>Price</th>
+                <th>-</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>Product A</td>
+                <td>$10</td>
+                <td>-</td>
+            </tr>
+            <tr>
+                <td>Product B</td>
+                <td>$20</td>
+                <td>-</td>
+            </tr>
+        </tbody>
+    </table>
 {% endblock %}
