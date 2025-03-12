@@ -14,8 +14,24 @@ import stripe
 import logging
 from .models import Subscription
 from django.conf import settings
+from django.core.cache import cache
 
 logger = logging.getLogger(__name__)
+
+
+def rate_limit(request, key_prefix="rate_limit", limit=10, timeout=60):
+    client_ip = request.META.get("REMOTE_ADDR")
+    user_id = request.user.id
+
+    key = f"{key_prefix}:{user_id}"
+
+    request_count = cache.get(key, 0)
+
+    if request_count >= limit:
+        return JsonResponse({"error": "Too many requests"}, status=429)
+    cache.set(key, request_count + 1, timeout=timeout)
+
+    return None 
 
 # Dashboard - Requires Login
 @login_required(login_url='login')
@@ -156,15 +172,13 @@ def LogoutPage(request):
 
 # Get login counts per day
 # this decorator is used to limit the amount of requets per user based on their ip
-@ratelimit(key='user_or_ip', rate='10/m')
 def get_logins_per_day(request):
-    ###subscription blocker
-    try:
-        sub = Subscription.objects.get(user=request.user)
-        if sub.status != "active":
-            return JsonResponse({"error": "Subscription required"}, status=403)
 
-        try:
+    rate_limit_response = rate_limit(request, key_prefix="logins", limit=10, timeout=60)
+    if rate_limit_response:
+        return rate_limit_response
+
+    try:
             login_data = (UserActivity.objects
                         .filter(action='logged in')
                         .annotate(login_date=TruncDate('timestamp'))
@@ -178,12 +192,18 @@ def get_logins_per_day(request):
 
             return JsonResponse(result, safe=False)
 
-        except Exception as e:
-            logger.error(f"Error in get_logins_per_day view: {str(e)}")
-            return JsonResponse({"error": "An error occurred while processing your request. Please try again."}, status=500)
+    except Exception as e:
+        logger.error(f"Error in get_logins_per_day view: {str(e)}")
+        return JsonResponse({"error": "An error occurred while processing your request. Please try again."}, status=500)
+    # ###subscription blocker
+    # try:
+    #     sub = Subscription.objects.get(user=request.user)
+    #     if sub.status != "active":
+    #         return JsonResponse({"error": "Subscription required"}, status=403)
+    #         ## exception for the subscription try
+    # except Subscription.DoesNotExist:
 
-    ## exception for the subscription try
-    except Subscription.DoesNotExist:
+
         return JsonResponse({"error": "No subscription found"}, status=403)
 
 
@@ -193,14 +213,23 @@ def get_logins_per_day(request):
 @login_required(login_url='login')
 def create_checkout_session(request):
     user = request.user
-    customer = stripe.Customer.create(email=user.email)
+    stripe.api_key = settings.STRIPE_SECRET_KEY
 
+    # Check if user already has a subscription
+    existing_subscription = Subscription.objects.filter(user=user).first()
+
+    # If the user has an existing subscription, update it instead of creating a new customer
+    if existing_subscription and existing_subscription.status == "active":
+        return redirect("/dashboard/")  # Redirect to dashboard if already subscribed
+
+    # Create a Stripe customer if not already stored
+    customer = stripe.Customer.create(email=user.email)
     checkout_session = stripe.checkout.Session.create(
         customer=customer.id,
         payment_method_types=["card"],
         line_items=[
             {
-                "price": "price_1Qxtc6JNY05FwokpJCjk5rXe",  # Price ID from Stripe
+                "price": "price_1Qxtc6JNY05FwokpJCjk5rXe",
                 "quantity": 1,
             }
         ],
@@ -208,6 +237,22 @@ def create_checkout_session(request):
         success_url="http://127.0.0.1:8000/success/",
         cancel_url="http://127.0.0.1:8000/cancel/",
     )
+
+    # Save or update the Subscription in the database
+    if existing_subscription:
+        existing_subscription.stripe_customer_id = customer.id
+        existing_subscription.stripe_subscription_id = checkout_session.id
+        existing_subscription.stripe_price_id = "price_1Qxtc6JNY05FwokpJCjk5rXe"
+        existing_subscription.status = "pending"
+        existing_subscription.save()
+    else:
+        Subscription.objects.create(
+            user=user,
+            stripe_customer_id=customer.id,
+            stripe_subscription_id=checkout_session.id,
+            stripe_price_id="price_1Qxtc6JNY05FwokpJCjk5rXe",
+            status="pending",
+        )
 
     return redirect(checkout_session.url)
 
@@ -218,9 +263,9 @@ def create_checkout_session(request):
 
 #webhook
 
+
 @csrf_exempt
 def stripe_webhook(request):
-
     stripe.api_key = settings.STRIPE_SECRET_KEY
     payload = request.body
     sig_header = request.headers.get("Stripe-Signature")
@@ -228,27 +273,57 @@ def stripe_webhook(request):
 
     try:
         event = stripe.Webhook.construct_event(payload, sig_header, endpoint_secret)
-        
     except ValueError:
         return JsonResponse({"error": "Invalid payload"}, status=400)
     except stripe.error.SignatureVerificationError:
         return JsonResponse({"error": "Invalid signature"}, status=400)
 
+    # New Subscription Created (from Checkout)
+    if event["type"] == "checkout.session.completed":
+        session = event["data"]["object"]
+        customer_id = session["customer"]
+        subscription_id = session["subscription"]
 
-    if event["type"] == "customer.subscription.updated":
+        try:
+            # Find existing subscription or create a new one
+            sub, created = Subscription.objects.get_or_create(
+                stripe_customer_id=customer_id,
+                defaults={"stripe_subscription_id": subscription_id, "status": "active"},
+            )
+            if not created:
+                sub.stripe_subscription_id = subscription_id
+                sub.status = "active"
+                sub.save()
+        except Exception as e:
+            return JsonResponse({"error": str(e)}, status=500)
+
+    # Subscription Updated
+    elif event["type"] == "customer.subscription.updated":
         subscription_data = event["data"]["object"]
         stripe_subscription_id = subscription_data["id"]
         status = subscription_data["status"]
 
-       
         try:
             sub = Subscription.objects.get(stripe_subscription_id=stripe_subscription_id)
             sub.status = status
             sub.save()
         except Subscription.DoesNotExist:
             pass
-        
+
+    # Subscription Canceled
+    elif event["type"] == "customer.subscription.deleted":
+        subscription_data = event["data"]["object"]
+        stripe_subscription_id = subscription_data["id"]
+
+        try:
+            sub = Subscription.objects.get(stripe_subscription_id=stripe_subscription_id)
+            sub.status = "canceled"
+            sub.save()
+        except Subscription.DoesNotExist:
+            pass
+
     return JsonResponse({"status": "success"}, status=200)
+
 
 
 # User Profile
@@ -283,3 +358,23 @@ def profiles(request):
             messages.error(request, "Full Name and Email are required fields.")
 
     return render(request, 'dashboard/profiles.html', {'profile': profile})
+
+
+@login_required
+def create_customer_portal_session(request):
+    user = request.user
+    stripe.api_key = settings.STRIPE_SECRET_KEY
+    from dashboard.models import Subscription
+    try:
+        subscription = Subscription.objects.get(user=user)
+        customer_id = subscription.stripe_customer_id
+    except Subscription.DoesNotExist:
+        return redirect("/dashboard/") 
+
+    # Create a Stripe Customer Portal session
+    session = stripe.billing_portal.Session.create(
+        customer=customer_id,
+        return_url="http://127.0.0.1:8000/dashboard/",
+    )
+
+    return redirect(session.url)

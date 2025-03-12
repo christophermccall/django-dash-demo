@@ -102,8 +102,13 @@
         </li>
           <form action="{% url 'create_checkout_session' %}" method="POST">
             {% csrf_token %}
-            <button type="submit">Subscribe Now</button>
+            <button type="submit" class="btn btn-warning w-100 mt-3">Subscribe Now</button>
           </form>
+        </li>
+        <li>
+          <a href="{% url 'create_customer_portal_session' %}" class="btn btn-primary">
+            Manage Subscription
+        </a>
         </li>
       </ul>
     </div>
