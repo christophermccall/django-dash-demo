@@ -1,10 +1,19 @@
 /* Reset styles */
-*,
+/* *,
 *:before,
 *:after {
     padding: 0;
     margin: 0;
     box-sizing: border-box;
+} */
+* {
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+}
+html,body{
+    margin: 0;
+    padding: 0;
 }
 
 body {
@@ -135,22 +144,113 @@ button {
     margin-right: 4px;
 }
 
+.password-container {
+    position: relative;
+    width: 100%;
+    display: flex;
+    align-items: center;
+}
+.password-container input {
+    width: 100%;
+    padding-right: 40px;
+    height: 50px;
+    border-radius: 3px;
+    padding-left: 10px;
+}
+.password-container .toggle-password {
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    color: #ccc;
+    font-size: 18px;
+}
+
 /* Toast Notifications */
 .toast-container {
-    position: fixed;
+    position: absolute;
     top: 20px;
     right: 20px;
     z-index: 1050;
+    /* display: flex; */
+    /* flex-direction: column; */
+    align-items: center;
 }
 
 .toast {
-    min-width: 250px;
-    border-radius: 8px;
+    position: relative;
+    min-width: 300px; 
+    /* max-width: 350px; */
+    border-radius: 5px;
     padding: 10px;
-    font-size: 16px;
+    font-size: 14px;
+    background-color: #fff;
+    color: #4a5af1;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    /* overflow: hidden;
+    justify-content: space-between;
+    white-space: nowrap;
+    text-overflow: ellipsis; */
+} 
+
+/* Toast message text */
+ .toast-body {
+    font-size: 14px; 
+    font-weight: 500;
+    /* flex-grow: 1; */
+    white-space: nowrap;
+    display: flex; 
+
+    justify-content: space-between; 
+    align-items: center;
+    width: 100%;
+    padding: 10px; 
+    /* max-width: 75%;  */
+    /* overflow: hidden; */
+    /* text-overflow: ellipsis;
+    padding-right: 40px;   */
+} 
+
+.toast-message {
+    flex-grow: 1;
+    margin-right: 10px;
+    width: 95%;
 }
 
-.toast-body {
-    font-size: 14px;
-    font-weight: 500;
+/* Close button (right column, top-right corner) */
+
+/* .close-btn {
+    position: absolute;
+    top: 5px;  
+    right: 10px; 
+    background: none;
+    border: none;
+    color: red; 
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    padding: 0;
+    line-height: 1;
+    margin-left: 10px;
+} */
+
+.close-btn {
+    /* position: absolute;
+    inset: 5px 5px;
+    top: 5px;
+    right: 5px; */
+    background: none;
+    border: none;
+    color: red;
+    font-size: 20px;
+    font-weight: bold;
+    cursor: pointer;
+    padding: 0;
+    margin: 10px;
+    line-height: 0; 
+    width: 27%;
 }
+

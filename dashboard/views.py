@@ -16,6 +16,8 @@ from .models import Subscription
 from django.conf import settings
 from django.core.cache import cache
 
+stripe.api_key = settings.STRIPE_SECRET_KEY
+
 logger = logging.getLogger(__name__)
 
 
@@ -74,6 +76,10 @@ def success_view(request):
 
 def cancel_view(request):
     return render(request, 'cancel.html')
+
+@login_required(login_url='login')
+def create_checkout_session(request):
+    return render(request, 'dashboard/checkout.html')
 
 # Signup Page
 def SignupPage(request):
@@ -213,7 +219,7 @@ def get_logins_per_day(request):
 @login_required(login_url='login')
 def create_checkout_session(request):
     user = request.user
-    stripe.api_key = settings.STRIPE_SECRET_KEY
+    
 
     # Check if user already has a subscription
     existing_subscription = Subscription.objects.filter(user=user).first()
@@ -255,10 +261,6 @@ def create_checkout_session(request):
         )
 
     return redirect(checkout_session.url)
-
-
-
-
 
 
 #webhook
@@ -378,3 +380,43 @@ def create_customer_portal_session(request):
     )
 
     return redirect(session.url)
+
+# Products payment
+
+def checkout_session(request):
+    if request.method == 'POST':
+        try:
+            # Get the product details from the POST request
+            product_name = request.POST.get('name')
+            product_price = Decimal(request.POST.get('price')) * 100  # Convert to cents for Stripe
+            product_description = request.POST.get('description')
+
+            user_email = request.user.email  
+
+            # Create a Stripe checkout session for a one-time product purchase (payment)
+            checkout_session = stripe.checkout.Session.create(
+                line_items=[{
+                    'price_data': {
+                        'currency': 'usd',
+                        'unit_amount': int(product_price),  # Stripe requires the price in cents
+                        'product_data': {
+                            'name': product_name,
+                            'description': product_description,
+                            'images': ['https://example.com/product_image.jpg'],  # Replace with actual image URL
+                        },
+                    },
+                    'quantity': 1,
+                }],
+                mode='payment',  # Set mode to 'payment' for one-time purchase
+                success_url="http://127.0.0.1:8000/success/",
+                cancel_url="http://127.0.0.1:8000/cancel/",
+                customer_email=user_email,
+            )
+
+            # Redirect to Stripe Checkout session
+            return redirect(checkout_session.url)
+
+        except Exception as error:
+            return render(request, 'public/error.html', {'error': error})
+
+    return render(request, 'public/cancel.html')
