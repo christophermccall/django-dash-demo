@@ -18,6 +18,12 @@ from django.core.cache import cache
 
 stripe.api_key = settings.STRIPE_SECRET_KEY
 
+PRODUCT_PRICES = {
+    'iphone': 'price_1R1CT4QqP6RzVD7cvHiRvkvG',
+    'airpods': 'price_1R1CZiQqP6RzVD7cFK0XXqlZ',
+    'ps5': 'price_1R1CaqQqP6RzVD7cFj7M4o5w',
+}
+
 logger = logging.getLogger(__name__)
 
 
@@ -383,26 +389,83 @@ def create_customer_portal_session(request):
 
 # Products payment
 
-# iPhone Checkout session
 @login_required(login_url='login')
 def create_checkout_session(request):
-    try:
-        checkout_session = stripe.checkout.Session.create(
-            payment_method_types=['card'],
-            line_items=[{
-                'price': 'price_1R1CT4QqP6RzVD7cvHiRvkvG',  # Ensure this is correct
-                'quantity': 1,
-            }],
-            mode='payment',
-            success_url='http://127.0.0.1:8000/success/',
-            cancel_url='http://127.0.0.1:8000/cancel/',
-        )
-        # Redirect to Stripe Checkout session
-        return redirect(checkout_session.url)
-    except Exception as error:
-        return render(request, 'public/error.html', {'error': error})
+    if request.method == "POST":
+        product_id = request.POST.get('product_id')  # Get selected product ID
+        print(f"Received Product ID: {product_id}")  # Debugging step
+        
+        if product_id not in PRODUCT_PRICES:
+            return render(request, 'dashboard/templates/dashboard/error.html', {'error': 'No valid product selected.'})
 
-    return render(request, 'public/cancel.html')
+        try:
+            checkout_session = stripe.checkout.Session.create(
+                payment_method_types=['card'],
+                line_items=[{
+                    'price': PRODUCT_PRICES[product_id],
+                    'quantity': 1,
+                }],
+                mode='payment',
+                success_url='http://127.0.0.1:8000/success/',
+                cancel_url='http://127.0.0.1:8000/cancel/',
+            )
+            return redirect(checkout_session.url)
+        except Exception as error:
+            return render(request, 'dashboard/templates/dashboard/error.html', {'error': error})
+
+    return render(request, 'dashboard/templates/dashboard/error.html')
+
+
+# @login_required(login_url='login')
+# def create_checkout_session(request):
+#     if request.method == "POST":
+#         product_ids = request.POST.getlist('products')  # Get selected products from form
+#         line_items = []
+
+#         for product_id in product_ids:
+#             if product_id in PRODUCT_PRICES:
+#                 line_items.append({
+#                     'price': PRODUCT_PRICES[product_id],
+#                     'quantity': 1,
+#                 })
+
+#         if not line_items:
+#             return render(request, 'public/error.html', {'error': 'No valid products selected.'})
+
+#         try:
+#             checkout_session = stripe.checkout.Session.create(
+#                 payment_method_types=['card'],
+#                 line_items=line_items,
+#                 mode='payment',
+#                 success_url='http://127.0.0.1:8000/success/',
+#                 cancel_url='http://127.0.0.1:8000/cancel/',
+#             )
+#             return redirect(checkout_session.url)
+#         except Exception as error:
+#             return render(request, 'public/error.html', {'error': error})
+
+#     return render(request, 'public/cancel.html')
+
+# iPhone Checkout session
+# @login_required(login_url='login')
+# def create_checkout_session(request):
+#     try:
+#         checkout_session = stripe.checkout.Session.create(
+#             payment_method_types=['card'],
+#             line_items=[{
+#                 'price': 'price_1R1CT4QqP6RzVD7cvHiRvkvG', 
+#                 'quantity': 1,
+#             }],
+#             mode='payment',
+#             success_url='http://127.0.0.1:8000/success/',
+#             cancel_url='http://127.0.0.1:8000/cancel/',
+#         )
+#         # Redirect to Stripe Checkout session
+#         return redirect(checkout_session.url)
+#     except Exception as error:
+#         return render(request, 'public/error.html', {'error': error})
+
+#     return render(request, 'public/cancel.html')
 
 # Airpod Checkout session
 # @login_required(login_url='login')

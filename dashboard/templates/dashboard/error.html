@@ -1,0 +1,8 @@
+<!-- dashboard/templates/public/error.html -->
+{% extends 'dashboard/base.html' %}
+
+{% block content %}
+    <h2>Error</h2>
+    <p>{{ error }}</p>
+    <a href="{% url 'products' %}">Go Back</a>
+{% endblock %}

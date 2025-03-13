@@ -19,20 +19,18 @@
                 <td>
                     <form action="{% url 'create_checkout_session' %}" method="POST">
                         {% csrf_token %}
-                        <input type="hidden" name="name" value="iPhone 15 256GB Memory">
-                        <input type="hidden" name="price" value="1200.00">
+                        <input type="hidden" name="product_id" value="iphone">
                         <button type="submit" class="btn btn-primary"><i class="fa fa-shopping-cart"></i> Buy Now</button>
                     </form>
                 </td>
             </tr>
-            <!-- <tr>
+            <tr>
                 <td>Airpods Wireless Bluetooth Headphones</td>
                 <td>$169.99</td>
                 <td>
                     <form action="{% url 'create_checkout_session' %}" method="POST">
                         {% csrf_token %}
-                        <input type="hidden" name="name" value="Airpods Wireless Bluetooth Headphones">
-                        <input type="hidden" name="price" value="169.99">
+                        <input type="hidden" name="product_id" value="airpods">
                         <button type="submit" class="btn btn-primary"><i class="fa fa-shopping-cart"></i> Buy Now</button>
                     </form>
                 </td>
@@ -43,12 +41,11 @@
                 <td>
                     <form action="{% url 'create_checkout_session' %}" method="POST">
                         {% csrf_token %}
-                        <input type="hidden" name="name" value="Sony Playstation 5 Pro White Version">
-                        <input type="hidden" name="price" value="499.99">
+                        <input type="hidden" name="product_id" value="ps5">
                         <button type="submit" class="btn btn-primary"><i class="fa fa-shopping-cart"></i> Buy Now</button>
                     </form>
                 </td>
-            </tr> -->
+            </tr>            
         </tbody>
     </table>
 {% endblock %}
