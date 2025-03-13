@@ -383,40 +383,65 @@ def create_customer_portal_session(request):
 
 # Products payment
 
-def checkout_session(request):
-    if request.method == 'POST':
-        try:
-            # Get the product details from the POST request
-            product_name = request.POST.get('name')
-            product_price = Decimal(request.POST.get('price')) * 100  # Convert to cents for Stripe
-            product_description = request.POST.get('description')
-
-            user_email = request.user.email  
-
-            # Create a Stripe checkout session for a one-time product purchase (payment)
-            checkout_session = stripe.checkout.Session.create(
-                line_items=[{
-                    'price_data': {
-                        'currency': 'usd',
-                        'unit_amount': int(product_price),  # Stripe requires the price in cents
-                        'product_data': {
-                            'name': product_name,
-                            'description': product_description,
-                            'images': ['https://example.com/product_image.jpg'],  # Replace with actual image URL
-                        },
-                    },
-                    'quantity': 1,
-                }],
-                mode='payment',  # Set mode to 'payment' for one-time purchase
-                success_url="http://127.0.0.1:8000/success/",
-                cancel_url="http://127.0.0.1:8000/cancel/",
-                customer_email=user_email,
-            )
-
-            # Redirect to Stripe Checkout session
-            return redirect(checkout_session.url)
-
-        except Exception as error:
-            return render(request, 'public/error.html', {'error': error})
+# iPhone Checkout session
+@login_required(login_url='login')
+def create_checkout_session(request):
+    try:
+        checkout_session = stripe.checkout.Session.create(
+            payment_method_types=['card'],
+            line_items=[{
+                'price': 'price_1R1CT4QqP6RzVD7cvHiRvkvG',  # Ensure this is correct
+                'quantity': 1,
+            }],
+            mode='payment',
+            success_url='http://127.0.0.1:8000/success/',
+            cancel_url='http://127.0.0.1:8000/cancel/',
+        )
+        # Redirect to Stripe Checkout session
+        return redirect(checkout_session.url)
+    except Exception as error:
+        return render(request, 'public/error.html', {'error': error})
 
     return render(request, 'public/cancel.html')
+
+# Airpod Checkout session
+# @login_required(login_url='login')
+# def create_checkout_session(request):
+#     try:
+#         checkout_session = stripe.checkout.Session.create(
+#             payment_method_types=['card'],
+#             line_items=[{
+#                 'price': 'price_1R1CZiQqP6RzVD7cFK0XXqlZ',  # Ensure this is correct
+#                 'quantity': 1,
+#             }],
+#             mode='payment',
+#             success_url='http://127.0.0.1:8000/success/',
+#             cancel_url='http://127.0.0.1:8000/cancel/',
+#         )
+#         # Redirect to Stripe Checkout session
+#         return redirect(checkout_session.url)
+#     except Exception as error:
+#         return render(request, 'public/error.html', {'error': error})
+
+#     return render(request, 'public/cancel.html')
+
+    # PS-5 Checkout session
+#     @login_required(login_url='login')
+# def create_checkout_session(request):
+#     try:
+#         checkout_session = stripe.checkout.Session.create(
+#             payment_method_types=['card'],
+#             line_items=[{
+#                 'price': 'price_1R1CaqQqP6RzVD7cFj7M4o5w',  # Ensure this is correct
+#                 'quantity': 1,
+#             }],
+#             mode='payment',
+#             success_url='http://127.0.0.1:8000/success/',
+#             cancel_url='http://127.0.0.1:8000/cancel/',
+#         )
+#         # Redirect to Stripe Checkout session
+#         return redirect(checkout_session.url)
+#     except Exception as error:
+#         return render(request, 'public/error.html', {'error': error})
+
+#     return render(request, 'public/cancel.html')
