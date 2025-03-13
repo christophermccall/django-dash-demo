@@ -223,7 +223,7 @@ def get_logins_per_day(request):
 #checkout session
 
 @login_required(login_url='login')
-def create_checkout_session(request):
+def create_sub_checkout_session(request):
     user = request.user
     
 
