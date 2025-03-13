@@ -3,7 +3,7 @@ from django.urls import path
 from .views import dashboard_view
 from .views import LogoutPage
 from . import views
-from .views import get_logins_per_day, create_customer_portal_session
+from .views import get_logins_per_day, create_customer_portal_session, create_checkout_session,create_sub_checkout_session
 
 urlpatterns = [
 
@@ -21,5 +21,6 @@ urlpatterns = [
     path('api/logins-per-day/', get_logins_per_day, name='logins_per_day'),
     path('checkout-session/', views.create_checkout_session, name='checkout_session'),
     path('create_checkout_session/',views.create_checkout_session, name='create_checkout_session'),
+    path('create_sub_checkout_session/',views.create_sub_checkout_session, name='create_sub_checkout_session'),
     path('customer-portal/', views.create_customer_portal_session, name='create_customer_portal_session')
 ]

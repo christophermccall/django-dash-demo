@@ -100,7 +100,7 @@
           </a>
         </li>
         </li>
-          <form action="{% url 'create_checkout_session' %}" method="POST">
+          <form action="{% url 'create_sub_checkout_session' %}" method="POST">
             {% csrf_token %}
             <button type="submit" class="btn btn-warning w-100 mt-3">Subscribe Now</button>
           </form>
