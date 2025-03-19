@@ -27,7 +27,7 @@ PRODUCT_PRICES = {
 logger = logging.getLogger(__name__)
 
 
-def rate_limit(request, key_prefix="rate_limit", limit=10, timeout=60):
+def rate_limit(request, key_prefix="rate_limit", limit=10000, timeout=60):
     client_ip = request.META.get("REMOTE_ADDR")
     user_id = request.user.id
 
@@ -185,38 +185,60 @@ def LogoutPage(request):
 # Get login counts per day
 # this decorator is used to limit the amount of requets per user based on their ip
 def get_logins_per_day(request):
-
+    # Rate limiting
     rate_limit_response = rate_limit(request, key_prefix="logins", limit=10, timeout=60)
     if rate_limit_response:
         return rate_limit_response
 
+    # Check subscription
     try:
-            login_data = (UserActivity.objects
-                        .filter(action='logged in')
-                        .annotate(login_date=TruncDate('timestamp'))
-                        .values('login_date')
-                        .annotate(login_count=Count('id'))
-                        .order_by('login_date'))
+        sub = Subscription.objects.get(user=request.user)
 
-            logger.info(f"Login data: {login_data}")
+        # Ensure the subscription is active
+        if sub.status != "pending":
+            return JsonResponse({"subscription_required": True, "message": "Subscription required"})
 
-            result = [{"login_date": entry['login_date'].strftime('%Y-%m-%d'), "login_count": entry['login_count']} for entry in login_data]
+        # Enforce API usage limit (max 10 requests)
+        if sub.tracker_request_count >= 23:
+            return JsonResponse({
+                "subscription_required": True,
+                "message": "API request limit reached. Upgrade your plan."
+            })
 
-            return JsonResponse(result, safe=False)
+        # Increment API request count
+        sub.tracker_request_count += 1
+        sub.save()
+
+    except Subscription.DoesNotExist:
+        return JsonResponse({"subscription_required": True, "message": "No subscription found"})
+
+    # Fetch login data
+    try:
+        login_data = (
+            UserActivity.objects
+            .filter(action='logged in')
+            .annotate(login_date=TruncDate('timestamp'))
+            .values('login_date')
+            .annotate(login_count=Count('id'))
+            .order_by('login_date')
+        )
+
+        logger.info(f"Login data: {login_data}")
+
+        result = [
+            {
+                "login_date": entry['login_date'].strftime('%Y-%m-%d'),
+                "login_count": entry['login_count']
+            }
+            for entry in login_data
+        ]
+
+        return JsonResponse({"subscription_required": False, "data": result}, safe=False)
 
     except Exception as e:
         logger.error(f"Error in get_logins_per_day view: {str(e)}")
         return JsonResponse({"error": "An error occurred while processing your request. Please try again."}, status=500)
-    # ###subscription blocker
-    # try:
-    #     sub = Subscription.objects.get(user=request.user)
-    #     if sub.status != "active":
-    #         return JsonResponse({"error": "Subscription required"}, status=403)
-    #         ## exception for the subscription try
-    # except Subscription.DoesNotExist:
 
-
-        return JsonResponse({"error": "No subscription found"}, status=403)
 
 
 

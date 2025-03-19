@@ -19,6 +19,7 @@ class Subscription(models.Model):
     stripe_price_id = models.CharField(max_length=255) 
     status = models.CharField(max_length=50, default="unsubscribed")
     current_period_end = models.DateTimeField(null=True, blank=True)
+    tracker_request_count = models.IntegerField(default=0)
 
     def __str__(self):
         return f"Subscription {self.stripe_subscription_id} - {self.status}"
