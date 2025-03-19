@@ -19,9 +19,9 @@ from django.core.cache import cache
 stripe.api_key = settings.STRIPE_SECRET_KEY
 
 PRODUCT_PRICES = {
-    'iphone': 'price_1R1CT4QqP6RzVD7cvHiRvkvG',
-    'airpods': 'price_1R1CZiQqP6RzVD7cFK0XXqlZ',
-    'ps5': 'price_1R1CaqQqP6RzVD7cFj7M4o5w',
+    'iphone': 'price_1R3iqWJNY05FwokpDNKkdIDq',
+    'airpods': 'price_1R3isCJNY05FwokpqWRhnTZj',
+    'ps5': 'price_1R3it0JNY05FwokpJ0N1d496',
 }
 
 logger = logging.getLogger(__name__)
@@ -436,34 +436,3 @@ def create_checkout_session(request):
             return render(request, 'dashboard/templates/dashboard/error.html', {'error': error})
 
     return render(request, 'dashboard/templates/dashboard/error.html')
-
-
-# @login_required(login_url='login')
-# def create_checkout_session(request):
-#     if request.method == "POST":
-#         product_ids = request.POST.getlist('products')  # Get selected products from form
-#         line_items = []
-
-#         for product_id in product_ids:
-#             if product_id in PRODUCT_PRICES:
-#                 line_items.append({
-#                     'price': PRODUCT_PRICES[product_id],
-#                     'quantity': 1,
-#                 })
-
-#         if not line_items:
-#             return render(request, 'public/error.html', {'error': 'No valid products selected.'})
-
-#         try:
-#             checkout_session = stripe.checkout.Session.create(
-#                 payment_method_types=['card'],
-#                 line_items=line_items,
-#                 mode='payment',
-#                 success_url='http://127.0.0.1:8000/success/',
-#                 cancel_url='http://127.0.0.1:8000/cancel/',
-#             )
-#             return redirect(checkout_session.url)
-#         except Exception as error:
-#             return render(request, 'public/error.html', {'error': error})
-
-#     return render(request, 'public/cancel.html')
