@@ -15,6 +15,9 @@ import logging
 from .models import Subscription
 from django.conf import settings
 from django.core.cache import cache
+import datetime
+from django.utils import timezone
+from django.utils.timezone import make_aware
 
 stripe.api_key = settings.STRIPE_SECRET_KEY
 
@@ -185,21 +188,21 @@ def LogoutPage(request):
 # Get login counts per day
 # this decorator is used to limit the amount of requets per user based on their ip
 def get_logins_per_day(request):
+    user = request.user
     # Rate limiting
-    rate_limit_response = rate_limit(request, key_prefix="logins", limit=10, timeout=60)
+    rate_limit_response = rate_limit(request, key_prefix="logins", limit=100, timeout=60)
     if rate_limit_response:
         return rate_limit_response
 
     # Check subscription
     try:
-        sub = Subscription.objects.get(user=request.user)
-
+        sub = Subscription.objects.filter(user=user).first()
         # Ensure the subscription is active
-        if sub.status != "pending":
+        if sub.status != "active":
             return JsonResponse({"subscription_required": True, "message": "Subscription required"})
 
         # Enforce API usage limit (max 10 requests)
-        if sub.tracker_request_count >= 23:
+        if sub.tracker_request_count >= 50:
             return JsonResponse({
                 "subscription_required": True,
                 "message": "API request limit reached. Upgrade your plan."
@@ -247,52 +250,41 @@ def get_logins_per_day(request):
 @login_required(login_url='login')
 def create_sub_checkout_session(request):
     user = request.user
-    
 
-    # Check if user already has a subscription
+    # Check if user already has an active subscription
     existing_subscription = Subscription.objects.filter(user=user).first()
 
-    # If the user has an existing subscription, update it instead of creating a new customer
     if existing_subscription and existing_subscription.status == "active":
-        return redirect("/dashboard/")  # Redirect to dashboard if already subscribed
+        return redirect("/dashboard/")  # Redirect if already subscribed
 
-    # Create a Stripe customer if not already stored
-    customer = stripe.Customer.create(email=user.email)
+    # Create a Stripe Checkout Session
     checkout_session = stripe.checkout.Session.create(
-        customer=customer.id,
         payment_method_types=["card"],
         line_items=[
-            {
-                "price": "price_1Qxtc6JNY05FwokpJCjk5rXe",
-                "quantity": 1,
-            }
+            {"price": "price_1R4kIqJNY05FwokpbkMS6YDo", "quantity": 1},
+            {"price": "price_1R4kO2JNY05FwokpjkT0UZFM"},
         ],
         mode="subscription",
         success_url="http://127.0.0.1:8000/success/",
         cancel_url="http://127.0.0.1:8000/cancel/",
-    )
+        customer_email=user.email,  # Prefill the user's email
+)
 
-    # Save or update the Subscription in the database
-    if existing_subscription:
-        existing_subscription.stripe_customer_id = customer.id
-        existing_subscription.stripe_subscription_id = checkout_session.id
-        existing_subscription.stripe_price_id = "price_1Qxtc6JNY05FwokpJCjk5rXe"
-        existing_subscription.status = "pending"
-        existing_subscription.save()
-    else:
-        Subscription.objects.create(
-            user=user,
-            stripe_customer_id=customer.id,
-            stripe_subscription_id=checkout_session.id,
-            stripe_price_id="price_1Qxtc6JNY05FwokpJCjk5rXe",
-            status="pending",
-        )
+# Store both price IDs
+    Subscription.objects.create(
+        user=user,
+        stripe_checkout_session_id=checkout_session.id,
+        stripe_price_ids=["price_1R4kIqJNY05FwokpbkMS6YDo", "price_1R4kO2JNY05FwokpjkT0UZFM"],  # Store as a list
+        status="pending",
+    )
 
     return redirect(checkout_session.url)
 
 
-#webhook
 
+
+
+#webhook
 
 @csrf_exempt
 def stripe_webhook(request):
@@ -308,51 +300,109 @@ def stripe_webhook(request):
     except stripe.error.SignatureVerificationError:
         return JsonResponse({"error": "Invalid signature"}, status=400)
 
-    # New Subscription Created (from Checkout)
+    # Initialized IDs to Avoid "Referenced Before Assignment" Error
+    customer_id = None
+    subscription_id = None
+    checkout_session_id = None
+
+    # When a user completes checkout (New Subscription)
     if event["type"] == "checkout.session.completed":
         session = event["data"]["object"]
-        customer_id = session["customer"]
-        subscription_id = session["subscription"]
+        customer_id = session.get("customer")
+        subscription_id = session.get("subscription")
+        checkout_session_id = session.get("id")
+
+        if not customer_id or not subscription_id:
+            return JsonResponse({"error": "Missing customer or subscription ID"}, status=400)
+
+        subscription = Subscription.objects.filter(stripe_checkout_session_id=checkout_session_id).first()
+        
+        if not subscription:
+            return JsonResponse({"error": "Subscription not found"}, status=400)
 
         try:
-            # Find existing subscription or create a new one
-            sub, created = Subscription.objects.get_or_create(
-                stripe_customer_id=customer_id,
-                defaults={"stripe_subscription_id": subscription_id, "status": "active"},
-            )
-            if not created:
-                sub.stripe_subscription_id = subscription_id
-                sub.status = "active"
-                sub.save()
+            # Retrieve full subscription details
+            stripe_subscription = stripe.Subscription.retrieve(subscription_id)
+            price_ids = [item["price"]["id"] for item in stripe_subscription["items"]["data"]]
+            subscription_item_ids = [item["id"] for item in stripe_subscription["items"]["data"]]
+
+            # Convert UNIX timestamp to Django datetime
+            current_period_end_unix = stripe_subscription["current_period_end"]
+            current_period_end_dt = timezone.make_aware(datetime.datetime.utcfromtimestamp(current_period_end_unix))
+
+            # Update subscription details
+            subscription.stripe_customer_id = customer_id
+            subscription.stripe_subscription_id = subscription_id
+            subscription.stripe_price_ids = price_ids
+            subscription.stripe_subscription_item_ids = subscription_item_ids
+            subscription.status = stripe_subscription["status"]
+            subscription.current_period_end = current_period_end_dt
+            subscription.save()
+
+            logger.info(f"Subscription updated: {subscription}")
+
         except Exception as e:
+            logger.error(f"Error updating subscription: {e}")
             return JsonResponse({"error": str(e)}, status=500)
 
-    # Subscription Updated
+    # When a subscription is updated (plan upgrade/downgrade)
     elif event["type"] == "customer.subscription.updated":
         subscription_data = event["data"]["object"]
-        stripe_subscription_id = subscription_data["id"]
-        status = subscription_data["status"]
+        subscription_id = subscription_data["id"]
 
         try:
-            sub = Subscription.objects.get(stripe_subscription_id=stripe_subscription_id)
-            sub.status = status
-            sub.save()
-        except Subscription.DoesNotExist:
-            pass
+            # Find subscription in database
+            subscription = Subscription.objects.get(stripe_subscription_id=subscription_id)
 
-    # Subscription Canceled
+            # Get updated status
+            status = subscription_data["status"]
+
+            # Handle missing price information safely
+            if "items" in subscription_data and subscription_data["items"]["data"]:
+                price_id = subscription_data["items"]["data"][0].get("price", {}).get("id", None)
+            else:
+                price_id = None  # Handle missing price ID safely
+
+            # Convert UNIX timestamp to Django datetime
+            current_period_end_unix = subscription_data["current_period_end"]
+            current_period_end_dt = make_aware(datetime.datetime.utcfromtimestamp(current_period_end_unix))
+
+            # Update subscription details
+            subscription.stripe_price_id = price_id
+            subscription.status = status
+            subscription.current_period_end = current_period_end_dt
+            subscription.save()
+
+            logger.info(f"Subscription updated (upgrade/downgrade): {subscription}")
+
+        except Subscription.DoesNotExist:
+            logger.error(f"Subscription {subscription_id} not found for update.")
+            return JsonResponse({"error": "Subscription not found"}, status=400)
+            
+
+    # When a subscription is canceled
     elif event["type"] == "customer.subscription.deleted":
         subscription_data = event["data"]["object"]
-        stripe_subscription_id = subscription_data["id"]
+        subscription_id = subscription_data["id"]
 
         try:
-            sub = Subscription.objects.get(stripe_subscription_id=stripe_subscription_id)
-            sub.status = "canceled"
-            sub.save()
+            # Find the subscription
+            subscription = Subscription.objects.get(stripe_subscription_id=subscription_id)
+
+            # Mark it as canceled
+            subscription.status = "canceled"
+            subscription.save()
+
+            logger.info(f"Subscription canceled: {subscription}")
+
         except Subscription.DoesNotExist:
-            pass
+            logger.error(f"Subscription {subscription_id} not found for cancellation.")
+            return JsonResponse({"error": "Subscription not found"}, status=400)
 
     return JsonResponse({"status": "success"}, status=200)
+
+
+
 
 
 
@@ -396,7 +446,7 @@ def create_customer_portal_session(request):
     stripe.api_key = settings.STRIPE_SECRET_KEY
     from dashboard.models import Subscription
     try:
-        subscription = Subscription.objects.get(user=user)
+        subscription = Subscription.objects.filter(user=user).order_by('-id').first()
         customer_id = subscription.stripe_customer_id
     except Subscription.DoesNotExist:
         return redirect("/dashboard/") 
