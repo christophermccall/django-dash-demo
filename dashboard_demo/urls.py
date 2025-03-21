@@ -31,5 +31,5 @@ urlpatterns = [
     path('', index, name='index'),
     path('success/', views.success_view, name='success_view'),
     path('cancel/', views.cancel_view, name='cancel_view'),
-    path('stripe/webhook/', stripe_webhook, name='stripe_webhook'),
+    path('stripe/webhook/', stripe_webhook, name='stripe_webhook')
 ]
