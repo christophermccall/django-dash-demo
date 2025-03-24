@@ -185,7 +185,7 @@ button {
     border-radius: 5px;
     padding: 10px;
     font-size: 14px;
-    background-color: #fff;
+    background-color: var(--bs-light);
     color: #4a5af1;
     margin-bottom: 10px;
     display: flex;
@@ -196,6 +196,18 @@ button {
     text-overflow: ellipsis; */
 } 
 
+/* Toast success */
+.toast-success {
+    background-color: var(--bs-success-subtle);
+    color: var(--bs-success);
+}
+
+/* Toast danger */
+.toast-danger {
+    background-color: var(--bs-danger-subtle);
+    color: var(--bs-danger);
+}
+
 /* Toast message text */
  .toast-body {
     font-size: 14px; 
@@ -203,7 +215,6 @@ button {
     /* flex-grow: 1; */
     white-space: nowrap;
     display: flex; 
-
     justify-content: space-between; 
     align-items: center;
     width: 100%;
