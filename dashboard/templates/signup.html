@@ -18,7 +18,7 @@
         <div class="shape"></div>
     </div>
 
-    {% if messages %}
+    <!-- {% if messages %}
     <div class="toast-container" id="toastContainer">
         {% for message in messages %}
         <div class="toast show bg-{{ message.tags }}" role="alert">
@@ -29,7 +29,7 @@
         </div>
         {% endfor %}
     </div>
-    {% endif %}
+    {% endif %} -->
 
     <form action="" method="post">
         {% csrf_token %}
@@ -68,7 +68,7 @@
         }
     </script> -->
 
-    <script>
+    <!-- <script>
         // Automatically close toast notifications after 3 seconds
         document.addEventListener("DOMContentLoaded", function () {
             setTimeout(function () {
@@ -84,7 +84,7 @@
             toast.style.opacity = "0";
             setTimeout(() => toast.remove(), 300);
         }
-    </script>
+    </script> -->
 
     <script>
         function togglePassword(fieldId, iconSpan) {
