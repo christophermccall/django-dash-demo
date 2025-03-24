@@ -150,12 +150,12 @@ def LoginPage(request):
                 page=request.path
             )
 
-            messages.success(request, "Login successful!")
+            messages.success(request, "You have successfully logged in.")
             return redirect('dashboard')
 
         else:
             logger.warning(f"Failed login attempt for username {username}")
-            messages.error(request, "Username or Password is incorrect!")
+            messages.error(request, "Invalid username or password!")
             return redirect('login')  
 
     return render(request, 'login.html')
