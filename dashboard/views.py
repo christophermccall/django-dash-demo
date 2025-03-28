@@ -90,6 +90,11 @@ def cancel_view(request):
 def create_checkout_session(request):
     return render(request, 'dashboard/checkout.html')
 
+
+def price_page(request):
+    return render(request, 'price_page.html')
+
+
 # Signup Page
 def SignupPage(request):
     if request.method == 'POST':
