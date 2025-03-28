@@ -22,5 +22,6 @@ urlpatterns = [
     path('checkout-session/', views.create_checkout_session, name='checkout_session'),
     path('create_checkout_session/',views.create_checkout_session, name='create_checkout_session'),
     path('create_sub_checkout_session/',views.create_sub_checkout_session, name='create_sub_checkout_session'),
-    path('customer-portal/', views.create_customer_portal_session, name='create_customer_portal_session')
+    path('customer-portal/', views.create_customer_portal_session, name='create_customer_portal_session'),
+    path('pricing/', views.price_page, name='price_page')
 ]
