@@ -16,6 +16,7 @@ from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+# BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 
 # Quick-start development settings - unsuitable for production
@@ -66,7 +67,8 @@ ROOT_URLCONF = 'dashboard_demo.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR / "templates"],
+        # 'DIRS': [BASE_DIR / "templates"],
+        'DIRS': [os.path.join(BASE_DIR, "templates")],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -88,8 +90,8 @@ DATABASES = {
     'default': {
         "ENGINE": "django.db.backends.postgresql",
         "NAME": "dashboard",
-        "USER": "chris",
-        "PASSWORD": "lesson",
+        "USER": "postgres",
+        "PASSWORD": "new_password",
         "HOST": "localhost",
         "PORT": "5432",
     }
@@ -103,6 +105,10 @@ CACHES = {
         }
     }
 }
+
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',
+]
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
@@ -180,7 +186,9 @@ LOGGING = {
         'error_file': {
             'level': 'ERROR',  # Log ERROR and above in the error file
             'class': 'logging.FileHandler',
-            'filename': BASE_DIR / 'logs' / 'errors.log',
+            # 'filename': BASE_DIR / 'logs' / 'errors.log',
+            'filename': os.path.join(BASE_DIR, 'logs', 'django.log'),
+            'filename': os.path.join(BASE_DIR, 'logs', 'errors.log'),
             'formatter': 'verbose',
         },
     },
