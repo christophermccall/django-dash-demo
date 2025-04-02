@@ -140,7 +140,7 @@ def LoginPage(request):
 
     if request.method == 'POST':
         username = request.POST.get('username')
-        pass1 = request.POST.get('pass')
+        pass1 = request.POST.get('password')
         user = authenticate(request, username=username, password=pass1)
 
         if user is not None:
@@ -159,10 +159,10 @@ def LoginPage(request):
             return redirect('dashboard')
 
         else:
-            logger.warning(f"Failed login attempt for username {username}")
+            logger.warning(f"Failed login attempt for username {username}. Password: {pass1}")
             messages.error(request, "Invalid username or password!")
             return redirect('login')  
-
+        
     return render(request, 'login.html')
 
 # Logout Page
@@ -247,9 +247,6 @@ def get_logins_per_day(request):
         logger.error(f"Error in get_logins_per_day view: {str(e)}")
         return JsonResponse({"error": "An error occurred while processing your request. Please try again."}, status=500)
 
-
-
-
 #checkout session
 
 @login_required(login_url='login')
@@ -284,10 +281,6 @@ def create_sub_checkout_session(request):
     )
 
     return redirect(checkout_session.url)
-
-
-
-
 
 #webhook
 
@@ -405,11 +398,6 @@ def stripe_webhook(request):
             return JsonResponse({"error": "Subscription not found"}, status=400)
 
     return JsonResponse({"status": "success"}, status=200)
-
-
-
-
-
 
 # User Profile
 @login_required
