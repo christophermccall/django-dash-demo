@@ -3,7 +3,8 @@ import toast, { Toaster } from 'react-hot-toast';
 
 const ToastNotification = () => {
   const showToast = () => {
-    toast.success('This is a success notification!');
+    toast.success('This is a success notification!', { duration: 4000 });
+    toast.error('Error occurred!', { icon: '❌' });
   };
 
   return (
