@@ -28,12 +28,14 @@ class Profile(models.Model):
     full_name = models.CharField(max_length=100)
     company_name = models.CharField(max_length=100, blank=True, null=True)
     ORGANIZATION_CHOICES = [
+        ('individual', 'Individual'),
         ('for_profit', 'For-Profit'),
-        ('non_profit', 'Non-Profit'),
+        ('non_profit', 'Non-Profit'), # keep the choice but user can't select it
     ]
-    organization_type = models.CharField(max_length=20, choices=ORGANIZATION_CHOICES, default='for_profit')
+    organization_type = models.CharField(max_length=20, choices=ORGANIZATION_CHOICES, default='individual')
     phone_number = models.CharField(max_length=20, blank=True, null=True)
     address = models.TextField(blank=True, null=True)
+    ein_number = models.CharField(max_length=9, blank=True, null=True)
 
     def __str__(self):
         return self.full_name or self.user.username

@@ -23,11 +23,24 @@
         </div>
 
         <div class="mb-3">
-            <label class="form-label">Organization Type</label>
+            <label class="form-label">Organization Type | Current Type:
+            {% if profile.organization_type == 'non_profit' %}
+              <span class="badge bg-success">Non-Profit</span>
+            {% elif profile.organization_type == 'for_profit' %}
+              <span class="badge bg-primary">For-Profit</span>
+            {% else %}
+              <span class="badge bg-secondary">Individual</span>
+            {% endif %}</label>
             <select class="form-control" name="organization_type">
+                <option value="individual" {% if profile.organization_type == 'individual' %}selected{% endif %}>Individual</option>
                 <option value="for_profit" {% if profile.organization_type == 'for_profit' %}selected{% endif %}>For-Profit</option>
-                <option value="non_profit" {% if profile.organization_type == 'non_profit' %}selected{% endif %}>Non-Profit</option>
             </select>
+            <small class="text-muted">To register as a Non-Profit, please enter your organization's EIN number below.</small>
+        </div>
+
+        <div class="mb-3">
+            <label for="ein_number" class="form-label">EIN (Optional)</label>
+            <input type="text" class="form-control" id="ein_number" name="ein_number" value="{{ profile.ein_number }}">
         </div>
 
         <div class="mb-3">
