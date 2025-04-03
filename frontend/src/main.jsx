@@ -1,11 +1,16 @@
-import { StrictMode } from 'react';
-import { createRoot } from 'react-dom/client';
-import './index.css';
-import 'bootstrap/dist/css/bootstrap.min.css';
-import App from './App.jsx';
+import React from 'react';
+import ReactDOM from 'react-dom/client';
+import App from './App';
 
-createRoot(document.getElementById('react-root')).render(
-  <StrictMode>
-    <App />
-  </StrictMode>
-);
+const root = document.getElementById('react-root');
+
+if (root) {
+  console.log("✅ Mounting App on #react-root");
+  ReactDOM.createRoot(root).render(
+    <React.StrictMode>
+      <App />
+    </React.StrictMode>
+  );
+} else {
+  console.error("❌ Failed to find #react-root");
+}
