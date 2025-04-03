@@ -1,14 +1,21 @@
-{% load static %}
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pricing</title>
-    <link href="{% static 'css/bootstrap.min.css' %}" rel="stylesheet">
-</head>
-<body>
+{% extends 'dashboard/base.html' %}
+
+{% block content %}
     <div id="react-root"></div>
-    <script src="{% static 'js/react_bundle.js' %}"></script>
-</body>
+
+    <!-- These must be loaded from Vite directly -->
+    <script type="module">
+        import RefreshRuntime from 'http://localhost:5173/@react-refresh'
+        RefreshRuntime.injectIntoGlobalHook(window)
+        window.$RefreshReg$ = () => {}
+        window.$RefreshSig$ = () => (type) => type
+        window.__vite_plugin_react_preamble_installed__ = true
+      </script>
+      
+      <!-- Vite client for hot-reloading -->
+      <script type="module" src="http://localhost:5173/@vite/client"></script>
+      
+      <!-- Main React entry point -->
+      <script type="module" src="http://localhost:5173/src/main.jsx"></script>
 </html>
+{% endblock %}
