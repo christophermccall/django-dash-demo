@@ -16,6 +16,7 @@ from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+# BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 
 # Quick-start development settings - unsuitable for production
@@ -29,6 +30,7 @@ SECRET_KEY = os.getenv("django_sec_key", "your-default-secret-key")
 STRIPE_SECRET_KEY = os.getenv("STRIPE_SECRET_KEY")
 STRIPE_PUBLIC_KEY = os.getenv("STRIPE_PUBLIC_KEY")
 STRIPE_WEBHOOK_SECRET = os.getenv("STRIPE_WEBHOOK_SECRET")
+DEBUG = os.getenv('DEBUG') == 'True'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -46,9 +48,13 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'dashboard',
+    'payments',
+    'django_redis',
+    'corsheaders',
 ]
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -58,12 +64,18 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
+# CORS settings
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:5173",  # React frontend URL   
+]
+
 ROOT_URLCONF = 'dashboard_demo.urls'
 
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR / "templates"],
+        # 'DIRS': [BASE_DIR / "templates"],
+        'DIRS': [os.path.join(BASE_DIR, "templates")],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -83,11 +95,27 @@ WSGI_APPLICATION = 'dashboard_demo.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": "dashboard",
+        "USER": "chris",
+        "PASSWORD": "lesson",
+        "HOST": "localhost",
+        "PORT": "5432",
     }
 }
 
+CACHES = {
+    "default": {
+        'BACKEND': 'django.core.cache.backends.redis.RedisCache',
+        'LOCATION': 'redis://127.0.0.1:6379/1',
+        "OPTIONS": {
+        }
+    }
+}
+
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',
+]
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
@@ -165,7 +193,9 @@ LOGGING = {
         'error_file': {
             'level': 'ERROR',  # Log ERROR and above in the error file
             'class': 'logging.FileHandler',
-            'filename': BASE_DIR / 'logs' / 'errors.log',
+            # 'filename': BASE_DIR / 'logs' / 'errors.log',
+            'filename': os.path.join(BASE_DIR, 'logs', 'django.log'),
+            'filename': os.path.join(BASE_DIR, 'logs', 'errors.log'),
             'formatter': 'verbose',
         },
     },
@@ -200,11 +230,11 @@ if not DEBUG:
     LOGGING['handlers']['console']['level'] = 'ERROR'  # Only show errors in console for production
 
 # Messages configuration 
-from django.contrib.messages import constants as messages
-MESSAGE_TAGS = {
-    messages.DEBUG: 'debug',
-    messages.INFO: 'info',
-    messages.SUCCESS: 'success',
-    messages.WARNING: 'warning',
-    messages.ERROR: 'danger',
-}
+# from django.contrib.messages import constants as messages
+# MESSAGE_TAGS = {
+#     messages.DEBUG: 'debug',
+#     messages.INFO: 'info',
+#     messages.SUCCESS: 'success',
+#     messages.WARNING: 'warning',
+#     messages.ERROR: 'danger',
+# }

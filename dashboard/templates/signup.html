@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <title>Signup Page</title>
     <link rel="preconnect" href="https://fonts.gstatic.com">
@@ -8,27 +9,14 @@
     <!-- <link rel="stylesheet" href="signup.css"> -->
     {% load static %}
     <link rel="stylesheet" href="{% static 'dashboard/signup.css' %}">
-    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </head>
+
 <body>
     <div class="background">
         <div class="shape"></div>
         <div class="shape"></div>
     </div>
-    {% if messages %}
-    <div class="toast-container">
-        {% for message in messages %}
-        <div class="toast show {{ message.tags }}" role="alert">
-            <div class="toast-body">
-                {{ message }}
-                <button type="button" class="close-btn" onclick="closeToast(this)">
-                    &times;
-                </button>
-            </div>
-        </div>
-        {% endfor %}
-    </div>
-    {% endif %}
 
     <form action="" method="post">
         {% csrf_token %}
@@ -38,7 +26,7 @@
         <input type="text" placeholder="Username" name="username" id="username">
 
         <label for="email">Email</label>
-        <input type="email" placeholder="Email or Phone" name="email" id="email">
+        <input type="email" placeholder="Enter Email" name="email" id="email">
 
         <label for="password1">Password</label>
         <div class="password-container">
@@ -57,16 +45,18 @@
         </div>
 
         <button type="submit">Signup</button>
-        
+
         <a href="{% url 'login' %}">I already have an account</a>
     </form>
 
-    <script>
-        function closeToast(button) {
-            button.parentElement.parentElement.style.display = "none";
-        }
-    </script>
+    <!-- Embed React app -->
+    <div id="root"></div>
 
+    <!-- Load React Bundle -->
+    <!-- <script src="{% static 'frontend/src/main.jsx' %}"></script> -->
+    <!-- <script type="module" src="{% static 'frontend/main.jsx' %}"></script> -->
+    <script src="{% static 'js/react_bundle.js' %}"></script>
+    
     <script>
         function togglePassword(fieldId, iconSpan) {
             let passwordField = document.getElementById(fieldId);
@@ -82,6 +72,7 @@
             }
         }
     </script>
-    
+
 </body>
+
 </html>
