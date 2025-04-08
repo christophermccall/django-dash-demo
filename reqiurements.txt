@@ -9,3 +9,4 @@ typing_extensions==4.12.2
 python-dotenv==1.0.1
 redis==5.2.1
 psycopg==3.2.6
+django-cors-headers==4.7.0
