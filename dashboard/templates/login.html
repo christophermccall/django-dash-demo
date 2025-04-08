@@ -39,14 +39,30 @@
     </form>
 
      <!-- Embed React app -->
-     <div id="root"></div>
+     <!-- <div id="root"></div> -->
 
      <!-- Load React Bundle -->
      <!-- <script src="{% static 'frontend/src/main.jsx' %}"></script> -->
      <!-- <script type="module" src="{% static 'frontend/main.jsx' %}"></script> -->
-     <script src="{% static 'js/react_bundle.js' %}"></script>
+     <!-- <script src="{% static 'js/react_bundle.js' %}"></script> -->
 
-    
+     <div id="react-root"></div>
+
+     <!-- These must be loaded from Vite directly -->
+     <script type="module">
+         import RefreshRuntime from 'http://localhost:5173/@react-refresh'
+         RefreshRuntime.injectIntoGlobalHook(window)
+         window.$RefreshReg$ = () => {}
+         window.$RefreshSig$ = () => (type) => type
+         window.__vite_plugin_react_preamble_installed__ = true
+       </script>
+       
+       <!-- Vite client for hot-reloading -->
+       <script type="module" src="http://localhost:5173/@vite/client"></script>
+       
+       <!-- Main React entry point -->
+       <script type="module" src="http://localhost:5173/src/main.jsx"></script>
+       
     <script>
         function togglePassword(fieldId, iconSpan) {
             let passwordField = document.getElementById(fieldId);

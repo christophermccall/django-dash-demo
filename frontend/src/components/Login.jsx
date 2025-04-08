@@ -9,6 +9,9 @@ const Login = () => {
   const handleLogin = async (e) => {
     e.preventDefault();
 
+     // TEMP test to force notification
+    notifySuccess("Login button clicked!");
+
     try {
       // Simulating API request (Replace with real API)
       const response = await fetch("/api/login", {
