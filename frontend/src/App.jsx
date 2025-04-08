@@ -40,14 +40,14 @@
 //   );
 // };
 
-const App = () => {
-  return (
-    <div>
-      <h1>React Toast Notification Example</h1>
-      <ToastNotification />
-    </div>
-  );
-};
+// const App = () => {
+//   return (
+//     <div>
+//       <h1>React Toast Notification Example</h1>
+//       <ToastNotification />
+//     </div>
+//   );
+// };
 
 
 // export default App;
@@ -99,7 +99,6 @@ const App = () => {
 import React from 'react';
 import { Toaster } from 'react-hot-toast';
 import { toast } from "react-hot-toast";
-import "react-hot-toast/dist/react-hot-toast.css";
 
 function App() {
   return (
