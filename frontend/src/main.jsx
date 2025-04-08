@@ -2,7 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App';
 import Pricing from './components/Pricing';
-import 'bootstrap/dist/css/bootstrap.min.css';
+import ToastNotification from './components/ToastNotification';
 // import AnotherComponent from './AnotherComponent';
 // import YetAnotherComponent from './YetAnotherComponent';
 
@@ -41,3 +41,4 @@ if (root3) {
   );
 } else {
   console.error("Failed to find #yet-another-root");
+}

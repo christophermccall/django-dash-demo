@@ -4,32 +4,23 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "start": "react-scripts start",
     "dev": "vite",
     "build": "vite build",
-    "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "lint": "eslint ."
   },
   "dependencies": {
     "bootstrap": "^5.3.3",
-
     "chart.js": "^4.4.8",
-
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-hot-toast": "^2.5.2",
-    "react-scripts": "^3.0.1"
-    "react": "^19.1.0",
-    "react-chartjs-2": "^5.3.0",
-    "react-dom": "^19.1.0",
-    "react-hot-toast": "^2.5.2"
-
+    "react-chartjs-2": "^5.3.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.21.0",
     "@types/react": "^19.0.10",
     "@types/react-dom": "^19.0.4",
-    "@vitejs/plugin-react": "^4.3.4",
     "@vitejs/plugin-react-swc": "^3.8.0",
     "eslint": "^9.21.0",
     "eslint-plugin-react-hooks": "^5.1.0",
