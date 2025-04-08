@@ -18,6 +18,9 @@ from django.core.cache import cache
 import datetime
 from django.utils import timezone
 from django.utils.timezone import make_aware
+from .utils import is_non_profit_ein
+
+
 
 stripe.api_key = settings.STRIPE_SECRET_KEY
 
@@ -412,23 +415,26 @@ def profiles(request):
         email = request.POST.get('email')
         phone_number = request.POST.get('phone_number')
         address = request.POST.get('address')
+        ein_number = request.POST.get('ein_number')
 
-        if full_name and email:
-            user.email = email
-            profile.full_name = full_name
-            profile.company_name = company_name
-            profile.organization_type = organization_type
-            profile.phone_number = phone_number
-            profile.address = address
+        user.email = email
+        profile.full_name = full_name
+        profile.company_name = company_name
+        profile.phone_number = phone_number
+        profile.address = address
+        profile.ein_number = ein_number
 
-            user.save()
-            profile.save()
-            
-            messages.success(request, "Profile updated successfully!")
-
-            return redirect('profiles')
+        if ein_number and is_non_profit_ein(ein_number):
+            profile.organization_type = 'non_profit'
+            messages.success(request, "EIN verified! Organization type set to Non-Profit.")
         else:
-            messages.error(request, "Full Name and Email are required fields.")
+            profile.organization_type = organization_type
+
+        user.save()
+        profile.save()
+        
+        messages.success(request, "Profile updated successfully!")
+        return redirect('profiles')
 
     return render(request, 'dashboard/profiles.html', {'profile': profile})
 

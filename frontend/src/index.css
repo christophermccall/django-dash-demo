@@ -1,3 +1,6 @@
+@import "react-hot-toast/dist/index.css";
+
+
 :root {
   font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
@@ -23,6 +26,7 @@ a:hover {
 }
 
 body {
+  overflow: visible !important;
   margin: 0;
   display: flex;
   place-items: center;

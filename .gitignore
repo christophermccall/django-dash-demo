@@ -15,6 +15,7 @@ db.sqlite3
 
 
 .env
+backup.py
 
 logs/*
 !logs/.gitkeep

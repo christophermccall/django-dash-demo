@@ -2,7 +2,9 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App';
 import Pricing from './components/Pricing';
-import ToastNotification from './components/ToastNotification';
+import 'bootstrap/dist/css/bootstrap.min.css';
+// import AnotherComponent from './AnotherComponent';
+// import YetAnotherComponent from './YetAnotherComponent';
 
 const root1 = document.getElementById('react-root');
 const root2 = document.getElementById('react-pricing-root');
@@ -27,7 +29,7 @@ if (root2) {
     </React.StrictMode>
   );
 } else {
-  console.error("Failed to find #react-pricing-root");
+  console.error("Failed to find #another-root");
 }
 
 if (root3) {
@@ -38,5 +40,4 @@ if (root3) {
     </React.StrictMode>
   );
 } else {
-  console.error("Failed to find #react-toast-root");
-}
+  console.error("Failed to find #yet-another-root");
