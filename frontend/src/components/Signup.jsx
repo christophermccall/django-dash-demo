@@ -38,7 +38,7 @@ const Signup = () => {
         <button type="submit">Signup</button>
       </form>
 
-      {/* <ToastNotification /> Render Toaster */}
+      { <ToastNotification /> /*Render Toaster */}
     </div>
   );
 };

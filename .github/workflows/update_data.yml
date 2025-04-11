@@ -1,0 +1,34 @@
+name: Update IRS Nonprofit Data
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 0 */15 * *'
+
+jobs:
+    update-data:
+        runs-on: ubuntu-latest
+
+        steps:
+            - name: Checkout Repo
+              uses: actions/checkout@v4
+
+            - name: Set up Python
+              uses: actions/setup-python@v4
+              with:
+                python-version: '3.9'
+
+            - name: Install Dependencies
+              run: pip install pandas
+
+            - name: Run Script
+              run: |
+                chmod +x dashboard/scripts/update_data.sh
+                ./dashboard/scripts/update_data.sh
+
+            - name: Commit and Push Changes
+              run: |
+                git config --global user.name 'GitHub Actions'
+                git add .
+                git commit -m "Update data"
+                git push

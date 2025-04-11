@@ -5,6 +5,7 @@ from .views import LogoutPage
 from . import views
 from .views import get_logins_per_day, create_customer_portal_session, create_checkout_session,create_sub_checkout_session
 
+
 urlpatterns = [
 
     path('', dashboard_view, name='dashboard'),
