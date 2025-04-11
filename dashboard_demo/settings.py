@@ -97,8 +97,8 @@ DATABASES = {
     'default': {
         "ENGINE": "django.db.backends.postgresql",
         "NAME": "dashboard",
-        "USER": "chris",
-        "PASSWORD": "lesson",
+        "USER": "postgres",
+        "PASSWORD": "new_password",
         "HOST": "localhost",
         "PORT": "5432",
     }
@@ -153,7 +153,7 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, 'static'),]
+    os.path.join(BASE_DIR, 'dashboard/static'),]
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 # Default primary key field type

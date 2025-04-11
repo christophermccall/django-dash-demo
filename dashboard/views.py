@@ -97,6 +97,10 @@ def create_checkout_session(request):
 def price_page(request):
     return render(request, 'price_page.html')
 
+def get_message(request):
+    storage = get_messages(request)
+    messages_list = [message.message for message in storage]
+    return JsonResponse({"message": messages_list[0] if messages_list else ""})
 
 # Signup Page
 def SignupPage(request):
@@ -108,11 +112,11 @@ def SignupPage(request):
 
         if pass1 != pass2:
             messages.error(request, "Your password and confirm password do not match!")
-            return redirect('signup')
+            return redirect('/signup/')
         
         if User.objects.filter(username=uname).exists():
             messages.warning(request, "Username already taken. Try another one.")
-            return redirect('signup')
+            return redirect('/signup/')
 
         # User creation (Corrected indentation)
         my_user = User.objects.create_user(username=uname, email=email, password=pass1)
@@ -130,7 +134,7 @@ def SignupPage(request):
         )
 
         messages.success(request, "Account created successfully! Please log in.")
-        return redirect('login')
+        return redirect('/login/')
 
     return render(request, 'signup.html')
 
@@ -159,12 +163,12 @@ def LoginPage(request):
             )
 
             messages.success(request, "You have successfully logged in.")
-            return redirect('dashboard')
+            return redirect('/dashboard/')
 
         else:
             logger.warning(f"Failed login attempt for username {username}. Password: {pass1}")
             messages.error(request, "Invalid username or password!")
-            return redirect('login')  
+            return redirect('/login/')  
         
     return render(request, 'login.html')
 
@@ -191,7 +195,7 @@ def LogoutPage(request):
 
         messages.info(request, "You have been logged out successfully.")
 
-    return redirect('login')
+    return redirect('/login/')
 
 # Get login counts per day
 # this decorator is used to limit the amount of requets per user based on their ip

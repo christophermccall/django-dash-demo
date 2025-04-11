@@ -1,13 +1,15 @@
 from django.urls import path
-
+from .views import get_message
 from .views import dashboard_view
 from .views import LogoutPage
 from . import views
 from .views import get_logins_per_day, create_customer_portal_session, create_checkout_session,create_sub_checkout_session
 
+
 urlpatterns = [
 
     path('', dashboard_view, name='dashboard'),
+    path("get-message/", get_message, name="get_message"),
     path('logout/', LogoutPage, name='logout'),
     path('api/logins-per-day/', get_logins_per_day, name='logins_per_day'),
     path('', views.dashboard_view, name='dashboard'),

@@ -46,7 +46,7 @@ class Profile(models.Model):
     organization_type = models.CharField(max_length=20, choices=ORGANIZATION_CHOICES, default='individual')
     phone_number = models.CharField(max_length=20, blank=True, null=True)
     address = models.TextField(blank=True, null=True)
-    ein_number = models.CharField(max_length=9, blank=True, null=True)
+    ein_number = models.CharField(max_length=255, blank=True, null=True)
 
     def __str__(self):
         return self.full_name or self.user.username
